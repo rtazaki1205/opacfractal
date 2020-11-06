@@ -2199,7 +2199,6 @@ ll=indx(i)
 sum=b(ll)
 b(ll)=b(i)
 if (ii.ne.0)then
-  !do 11 j=ii,i-1
   do j=ii,i-1
     sum=sum-a(i,j)*b(j)
   enddo
