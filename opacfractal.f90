@@ -337,7 +337,7 @@ elseif(iqsca .ge. 2) then
 
         !--------------------------------------------------------------------------------
         !
-        !  Following two functions calculate the integrand of a(nu,n,p), b(nu,n,p):
+        !  Calculate a(nu,n,p) and b(nu,n,p):
         !
         !               2p + 1  /+1
         !  a(nu,n,p) = -------- | dx P_nu^1(x) * P_n^1(x) * P_p(x),
@@ -2011,7 +2011,6 @@ end subroutine chgm
 
   return
 end subroutine gamma
-
 
 !
 ! Output Sp
