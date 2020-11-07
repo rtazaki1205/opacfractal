@@ -84,7 +84,6 @@ open(10,file="out_opc.dat",status="unknown")
 do j=1,ndf
 write(10,1100) iqsca,   " = iqsca"
 write(10,1100) iqcor,   " = iqcor"
-write(10,1000) lmd,     " = wavelength (um)"
 write(10,1000) R0,      " = Monomer radius (um)"
 write(10,1000) PN,      " = Number of monomers"
 write(10,1000) DF(j),   " = Fractal dimension"
