@@ -29,7 +29,6 @@ LD = $(FC)
 LDFLAGS = $(FCFLAGS)
 INCLUDE = 
 LIBS = 
-#DATA = index_CpaD03 index_CpeD03 callindex.out_SilD03 co.dat \
 MAN = 
 SHELL = /bin/sh
 ALLFILES = $(SRCS) $(DATA) Makefile
