@@ -19,7 +19,7 @@ real(kind=dp)                           :: Cext,Csca,Cabsp,Gsca,dphi
 real(kind=dp),allocatable,dimension(:,:):: Smat
 integer                                 :: iwl
 integer,parameter                       :: nwl=100
-integer,parameter                       :: ndf=8
+integer,parameter                       :: ndf=16
 real(kind=dp),dimension(1:ndf)          :: DF,k0
 real(kind=dp),dimension(1:nwl)          :: wl,re,im
 real(kind=dp),dimension(1:ndf,1:5,1:nwl):: CS
