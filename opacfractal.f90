@@ -16,7 +16,7 @@
 ! Disclaimer:
 ! I reject all responsibility for the use of this code.
 ! Although the code has been tested, it is still possible that the code
-! contains a bug. I am not responsible for any damages caused by the usage
+! contains a bug. I am not responsible for any damages caused by the use
 ! of the code. If you find a bug, please let me <r.tazaki-at-uva.nl> know.
 !
 !                                                      Ryo Tazaki (2020/Nov/6th)
@@ -25,7 +25,7 @@
 ! IMPORTANT REFERENCES
 !--------------------------------------------------------------------------------
 !
-! When you publish a paper by using this code, following references should be 
+! If you publish a paper by using this code, following references should be 
 ! cited depending on the code options (iqsca and iqcor) you used.
 !
 ! Light scattering solver:
@@ -202,8 +202,8 @@ real(kind=dp)           :: PF(1:2*nang-1)     ! Phase function (BH def.)
 !--------------------------------------------------------------------------------
 !       Local variables
 !--------------------------------------------------------------------------------
-real(kind=dp),parameter :: eta=25.0_dp        ! chgm
-real(kind=dp),parameter :: qRg_crit=26.0_dp   ! chgm, asymptotic
+real(kind=dp),parameter :: eta=25.0_dp         
+real(kind=dp),parameter :: qRg_crit=26.0_dp 
 real(kind=dp)           :: Rg                 ! radius of gyration
 real(kind=dp)           :: Rc                 ! characteristic radius
 real(kind=dp)           :: k                  ! wavenumber
@@ -272,7 +272,6 @@ if (iqcor .ne. 1 .and. iqcor .ne. 2 .and. iqcor .ne. 3) then
         print *, '       STOP.'
         stop
 endif
-
 
 if(numax + nmax .ge. 500 .and. iquiet .eq. 0) then
         print *, "WARNING: the truncation order of monomer's scattered light"
@@ -352,7 +351,7 @@ elseif(iqsca .ge. 2) then
         !  P_n is the Legendre polynominal function 
         !  (see Equations (29, 30) in Tazaki & Tanaka 2018).
         !
-        !  The integration is performed with Gauss-Legendre quadrature.
+        !  The integration is performed with the Gauss-Legendre quadrature.
         !
         !--------------------------------------------------------------------------------
         !
@@ -608,12 +607,9 @@ end if
 !
 ! Now, calculate optical cross sections.
 !
-! For individual monomer:
-! 
-! Equation (4.61; 4.62) in Bohren & Huffman book.
-!
-! For given scattering coefficients an,bn ( variable : ad(:,n) or dd(:,n) )
-! the optical cross sections are written by
+! For the case of isolcated individual monomer, 
+! each cross section can be written by 
+! (Equation (4.61; 4.62) in Bohren & Huffman book.) 
 !
 !                   nstop
 !            2*pi   ---
@@ -632,8 +628,9 @@ end if
 !  C_abs =  ------  \    (2n+1) Re{|an|^2 ( --- - 1 ) + |bn|^2 ( --- - 1 )}
 !            k^2    /--                     an*                  bn*
 !                   n=1
-!
-! where * denotes the complex conjugate.
+! 
+! where (an,bn) is scattering coefficients of each monomer and * denotes 
+! the complex conjugate.
 !
 if(iqsca .eq. 1) then
         Cabsp = 0.0_dp
@@ -698,7 +695,8 @@ end subroutine meanscatt
 
 !--------------------------------------------------------------------------------
 !
-!  This subroutine performs Maxwell--Garnett mixing rule
+!  This subroutine finds effective refractive index of an aggregates
+!  by using Maxwell--Garnett mixing rule.
 !
 !  eps1: dielectric function of material 1
 !  eps2: dielectric function of material 2 (vacuum)
@@ -1345,7 +1343,7 @@ real(kind=dp),parameter:: b4 =  3.72312019844119
 !--------------------------------------------------------------------------------
 real(kind=dp),parameter:: floorvalue=1.0e-30_dp
 real(kind=dp),parameter:: eta1 = 25.0_dp
-real(kind=dp),parameter:: eta2 = 32.0_dp
+real(kind=dp),parameter:: eta2 = 28.0_dp
 integer                :: n,p,iqcor,isol
 real(kind=dp)::umin,umax,du,xg,D,fc
 real(kind=dp)::lnxa,lnxb,jp,yp,unitary,error
@@ -1516,16 +1514,20 @@ end function fc
 !--------------------------------------------------------------------------------
 !
 ! This subroutine computes spherical bessel function of the first kind j_p(x)
-! and the second kind y_p(x) of a given order p and the argument x.
+! and the second kind y_p(x) at a given order p and the argument x.
 !
-! Calculations of the spherical Bessel function of the first kind j_p(x) is not
-! straightforward because of numerical instability. However, Jablonski (1994) 
-! reported that proper use of (i) series expansion, (ii) downward recurrence,
-! and (ii) upward recuurence depending on order and argument of the function,
-! give rise to correct results for a wide range of parameters.
+! Calculations of the spherical Bessel function of the first kind j_p(x) for a 
+! wide range of parameters is not straightforward because of numerical instability.
+! However, Jablonski (1994) reported that a proper combination of (i) series 
+! expansion,(ii) downward recurrence, and (ii) upward recuurence depending on the 
+! order and the argument of the function, give rise to correct results for a wide 
+! range of parameters. In this subroutine, depending on isol=1,2,3, 
+! I opt an algorithm to be solved without instability.
 !
 ! The spherical Bessel function of the second kind y_p(x) can be computed by
 ! upward recurrence relation.
+!
+! The 0th and 1st order of these functions are
 !
 !            sin(x)              sin(x)       cos(x)
 ! j_0(x) =  -------- , j_1(x) = --------  -  --------
@@ -1534,8 +1536,6 @@ end function fc
 !             cos(x)               cos(x)     sin(x)
 ! y_0(x) = - ------- , y_1(x) = - -------  - --------
 !               x                   x^2         x
-!
-! Depending on isol=1,2,3, I select an proper algorithm as follows:
 !
 !--------------------------------------------------------------------------------
 ! isol = 1 : Series expansion 
@@ -2051,17 +2051,16 @@ end subroutine gamma
 
 !--------------------------------------------------------------------------------
 !
-! This subroutine computes geometrical cross section of an aggregates
+! This subroutine computes the geometrical cross section of an aggregate
 ! based on Equation (47) of Okuzumi et al. (2009).
 !
-! In Tazaki & Tanaka (2018), we adopt the empirical formulae of the geometrical 
-! cross sections of BCCA and BPCA given by Minato et al. (2006), because
-! we only considered BCCA and BPCA in the paper.
+! In Tazaki & Tanaka (2018), the geometrical cross section is computed by 
+! using the fitting formulae for BCCA and BPCA giben by Minato et al. (2006).
 ! 
-! However, this code is still capable to compute for an aggregate of arbitrary
-! fractal dimension. Okuzumi et al. (2009) interpolated the Minato06 formula for
-! intermediate fractal dimension. Then, Equation (47) in Okuzumi et al. (2009) 
-! fits the  purpose of this code better than formulae by Minato et al. (2006).
+! However, this code is still applicable for an aggregate having arbitrary
+! fractal dimension. To find the geometrical cross section of such aggregates,
+! I use Equation (47) in Okuzumi et al. (2009), where they found the empirical
+! formula by interpolating the Minato et al.'s formula for such cases.
 !
 !--------------------------------------------------------------------------------
 subroutine geocross(PN,a0,ac,GC)
