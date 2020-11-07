@@ -20,7 +20,7 @@ else
       DEBUGGING = -check all -traceback -check bounds -O0 -g -check -fpe1
    endif
    ifeq ($(openmp),true)
-      OMP= -qopenmp -fp-model strict
+      OMP= -openmp -fp-model strict
    endif
 endif
 FCFLAGS = $(DEBUGGING) $(OMP)
