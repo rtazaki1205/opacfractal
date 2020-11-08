@@ -1238,7 +1238,7 @@ end subroutine lpn
 !--------------------------------------------------------------------------------
 !
 !  This subroutine finds the inverse matrix of ( n , n ) complex matrix.
-!  I use a straight forward way to do this, although the method I used is 
+!  I use a straight forward way to do this, although the method is 
 !  inefficient in terms of memory (Press et al. 1992).
 !
 !  Consider a set of complex n linear equations:
