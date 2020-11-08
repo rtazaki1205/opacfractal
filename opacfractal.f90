@@ -192,7 +192,10 @@ real(kind=dp),parameter :: twopi  = 2.0_dp * pi
 real(kind=dp),parameter :: halfpi = 0.5_dp * pi    
 real(kind=dp),parameter :: d2r    = pi/180.0_dp  ! degree to radian
 real(kind=dp),parameter :: r2d    = 1.0_dp/d2r   ! radian to degree
-integer      ,parameter :: jm     = 400          ! Grid points in gauleg,
+integer      ,parameter :: jm     = 400          ! Number of grid points of Gauss-Ledengre
+                                                 ! for integration of Gaunt coefficients.
+integer,parameter       :: nn     = 10000        ! Number of grid points in the numerical
+                                                 ! integration for Sp(kRg)
 end module const
 
 !--------------------------------------------------------------------------------
@@ -572,8 +575,8 @@ do j=1,2*nang-1
         ! called the static structure factor (Sq) as defined in Eq (17) in
         ! Tazaki & Tanaka (2018). 
         !
-        ! The analytical expression of the static structure factor can be 
-        ! obtained for the case of iqcor = 1 and 2, but not for iqcor =3. 
+        ! The analytical expression of the static structure factor is available 
+        ! for the case of iqcor = 1 and 2, but not for iqcor =3. 
         ! Hence, iqcor=3 requires additional numerical integration.
         !
         if(iqcor .eq. 1) then
@@ -1374,7 +1377,7 @@ end subroutine complex_leqs_solver
 !--------------------------------------------------------------------------------
 subroutine integration_of_Sp(iqcor,D,p,xg,Sp)
 use types; use const
-integer,parameter      :: nn =  10000                    !  integration grid.
+!integer,parameter      :: nn =  10000                    !  integration grid.
 !--------------------------------------------------------------------------------
 ! Old boundary given by Jablonski et al. 1994 : !!! NOT FAVORED !!!
 !--------------------------------------------------------------------------------
