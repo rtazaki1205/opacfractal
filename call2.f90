@@ -1,7 +1,7 @@
 !--------------------------------------------------------------------------------
 !
 ! An example to call opacfractal.f90
-! 
+!      
 !--------------------------------------------------------------------------------
 program call_opacfractal
 use omp_lib
@@ -16,12 +16,13 @@ integer                                 :: iqsca,iqcor,iquiet,i,j,nang
 complex(kind=dp)                        :: ref
 real(kind=dp)                           :: lmd,R0,Rv,PN,df_min,df_max
 real(kind=dp)                           :: Cext,Csca,Cabsp,Gsca,dphi
+real(kind=dp)                           :: wlmin,wlmax,dwl
 real(kind=dp),allocatable,dimension(:,:):: Smat
 integer                                 :: iwl
 integer,parameter                       :: nwl=100
 integer,parameter                       :: ndf=16
 real(kind=dp),dimension(1:ndf)          :: DF,k0
-real(kind=dp),dimension(1:nwl)          :: wl,re,im
+real(kind=dp),dimension(1:nwl)          :: wl
 real(kind=dp),dimension(1:ndf,1:5,1:nwl):: CS
 !--------------------------------------------------------------------------------
 ! SET INPUT PARAMETERS
@@ -29,10 +30,11 @@ real(kind=dp),dimension(1:ndf,1:5,1:nwl):: CS
 iqsca  = 3                               ! A method to solve light scattering
 iqcor  = 1                               ! correlation function
 iquiet = 1                               ! stdout
-R0     = 1.e-1_dp                        ! Monomer radius (micron)
-Rv     = 1.e0_dp                         ! Volume equivalent radius (micron)
+R0     = 1.e0_dp                        ! Monomer radius (micron)
+Rv     = 1.e2_dp                         ! Volume equivalent radius (micron)
 PN     = (Rv/R0)**3.0_dp                 ! Number of monomer in an aggregate
-nang   = 91                              ! Angle mesh
+nang   = 90+1                              ! Angle mesh
+ref    = cmplx(1.33_dp,0.1_dp,kind=dp)   ! Complex refractive index
 !--------------------------------------------------------------------------------
 ! AGGREGATE STRUCTURE MODEL 
 !--------------------------------------------------------------------------------
@@ -43,13 +45,14 @@ do j=1,ndf
         k0(j) = (k0_bpca-k0_bcca)/(df_bpca-df_bcca)*(Df(j)-df_bpca)+k0_bpca
 enddo
 !--------------------------------------------------------------------------------
-! LOAD REFRACTIVE INDEX
+! Wavelength mesh
 !--------------------------------------------------------------------------------
-open(16,file="astrosil.nk",status="old")
+wlmin = 1.0e-1_dp
+wlmax = 1.0e3_dp
+dwl   = (wlmax/wlmin) ** (1.0_dp/real(nwl-1,kind=dp))
 do iwl=1,nwl
-        read(16,*) wl(iwl),re(iwl),im(iwl)
+        wl(iwl) = wlmin * dwl ** real(iwl-1,kind=dp)
 enddo
-close(16)
 !--------------------------------------------------------------------------------
 ! RUN OPACFRACTAL
 !--------------------------------------------------------------------------------
@@ -57,12 +60,11 @@ allocate(Smat(1:4,1:2*nang-1))
 do j=1,ndf
         !$OMP parallel do                                        &
         !$OMP default(none)                                      &
-        !$OMP shared(wl,re,im,CS)                                &
-        !$OMP shared(j,R0,PN,Df,k0,iqsca,iqcor,iquiet,nang)      &
-        !$OMP private(lmd,ref,Cext,Csca,Cabsp,Gsca,Smat,dphi)   
+        !$OMP shared(wl,CS)                                      &
+        !$OMP shared(j,R0,PN,Df,k0,ref,iqsca,iqcor,iquiet,nang)  &
+        !$OMP private(lmd,Cext,Csca,Cabsp,Gsca,Smat,dphi)   
         do iwl=1,nwl
                 lmd=wl(iwl)
-                ref=cmplx(re(iwl),im(iwl),kind=dp)
                 write(*,fmt='(A5,f3.1,A15,1PE15.5,A15,I3)') "Df = ",df(j),&
                         "wavel (mic) = ",lmd,&
                         ": thread = ",omp_get_thread_num()
@@ -86,6 +88,8 @@ write(10,1100) iqsca,   " = iqsca"
 write(10,1100) iqcor,   " = iqcor"
 write(10,1000) R0,      " = Monomer radius (um)"
 write(10,1000) PN,      " = Number of monomers"
+write(10,1000) real(ref), " = Re(m)"
+write(10,1000) aimag(ref)," = Im(m)"
 write(10,1000) DF(j),   " = Fractal dimension"
 write(10,1000) k0(j),   " = Fractal prefactor"
 write(10,*) "---------------------------------"
