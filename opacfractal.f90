@@ -1238,7 +1238,7 @@ end subroutine lpn
 !--------------------------------------------------------------------------------
 !
 !  This subroutine finds the inverse matrix of ( n , n ) complex matrix.
-!  I use astraight forward way to do this, although the method I used is 
+!  I use a straight forward way to do this, although the method I used is 
 !  inefficient in terms of memory (Press et al. 1992).
 !
 !  Consider a set of complex n linear equations:
@@ -1570,9 +1570,8 @@ end function fc
 ! Calculations of the spherical Bessel function of the first kind j_p(x) for a 
 ! wide range of parameters is not straightforward because of numerical instability.
 ! However, Jablonski (1994) reported that a proper combination of (i) series 
-! expansion,(ii) downward recurrence, and (ii) upward recuurence depending on the 
-! order and the argument of the function, gives rise to correct results for a wide 
-! range of parameters. 
+! expansion,(ii) downward recurrence, and (ii) upward recuurence can yield
+! correct results for a wide range of parameters. 
 !
 ! The spherical Bessel function of the second kind y_p(x) can be computed by
 ! upward recurrence relation.
