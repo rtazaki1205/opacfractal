@@ -5,8 +5,8 @@
 !--------------------------------------------------------------------------------
 !
 ! OPACFRACTAL v3.0 computes light scattering properties of randomly oriented 
-! fractal dust aggregates by means of the modified mean field theory developd 
-! in Tazaki & Tanaka (2018). The code is also capable of computing the light 
+! fractal dust aggregates by means of the modified mean field theory developed 
+! in Tazaki & Tanaka (2018). This code is also capable of computing the light 
 ! scattering solution based on the Rayleigh-Gans-Debye theory and the Mean field 
 ! theory.
 ! 
@@ -14,15 +14,42 @@
 ! please acknowledge this code and cite relevant papers. 
 !
 ! Disclaimer:
-! I reject all responsibility for the use of this code.
-! Although the code has been tested, it is still possible that the code
-! contains a bug. I am not responsible for any damages caused by the use
-! of the code. If you find a bug, please let me <r.tazaki-at-uva.nl> know.
+! I reject all responsibility for the use of this code. Although it has been 
+! tested, the code may still contain a bug. I am not responsible for any damages
+! caused by the use of the code. If you find a bug, please let me know.
 !
-!                                                      Ryo Tazaki (2020/Nov/6th)
+!                                                      Ryo Tazaki (2020/Nov/08)
 !
 !--------------------------------------------------------------------------------
+!
+! LIMITATION OF THE CODE
+!
+!--------------------------------------------------------------------------------
+!
+! Here, I summarize some limitations of the code for each approximation (iqsca).
+! The limitation can be simply judged by the phase shift induced by an aggregate
+! (Equation 9 in Tazaki & Tanaka 2018; see also Section 3.2 in this paper).
+!
+! iqsca=1: All outputs would be physically reasonable for the phase shift <~ 1. 
+! 
+! iqsca=2: The extinction cross section would be calculaed without limitation.
+!          However, the other outputs would be reliable for the phase shift < ~1.
+!
+! iqsca=3: The extinction cross section would be calculaed without limitation.
+!          Scattering and absorption cross sections could be calculated
+!          for the phase shift > 1, however too large phase shift may
+!          cause some problem.
+!          The asymmetry parameter and the sattering matrix elements would be
+!          reliable for the phase shift < ~1.
+!
+! For the two-point correlation function, I suggest to use iqcor=1 because
+! it is numerically stable and is likely to reproduce optical properties
+! of fractal aggregates.
+!
+!--------------------------------------------------------------------------------
+!
 ! IMPORTANT REFERENCES
+!
 !--------------------------------------------------------------------------------
 !
 ! If you publish a paper by using this code, following references should be 
@@ -34,16 +61,19 @@
 ! iqsca = 3     : Tazaki & Tanaka 2018, ApJ, 860, 79
 !                 Okuzumi et al. 2009, ApJ, 707, 1247
 !
-! Two-point correlation function of monomers:
-! iqcor = 1     : Tazaki et al. 2016, ApJ, 823, 70
+! The two-point correlation function of monomers:
+! iqcor = 1     : Tazaki et al. 2016, ApJ, 823, 70      (Recommend)
 ! iqcor = 2     : Berry & Percival 1986, AcOpt, 33, 577
 ! iqcor = 3     : Botet et al. 1995, JPhA, 28, 297
 !
 !--------------------------------------------------------------------------------
+!
 ! EXTERNAL SUBROUTINES 
+!
 !--------------------------------------------------------------------------------
 !
-! OPACFRACTAL v3.0 contains following subroutines kindly provided by other authors.
+! OPACFRACTAL v3.0 contains following subroutines provided by other authors.
+! I thank the authors for the availability of the subroutines.
 !
 ! lorenz_mie  : BHMIE written by Bruce T. Draine with modifications 
 ! renorm_mie  : BHMIE written by Bruce T. Draine with modifications
@@ -56,7 +86,9 @@
 ! gauleg      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"
 !
 !--------------------------------------------------------------------------------
+!
 ! INPUT PARAMETERS
+!
 !--------------------------------------------------------------------------------
 !
 ! lmd           : wavelength     (micron)
@@ -66,7 +98,10 @@
 ! k0            : fractal prefactor; PN = k0 (Rg/R0)^Df
 ! refrel        : complex refractive index (NOT DIELECTRIC FUNCTION)
 ! nang          : Number of angular grid between 0 ang 90 degrees.
-!                 If nang=91, then angular width is 1 degrees.
+!                 If nang=91, then angular width is 1 degree.
+!                 <TIPS>
+!                 For iqsca=3, I suggest the users to check the convergence
+!                 of the results by changing nang.
 ! iqsca         : Switch for the light scattering solver
 !                 iqsca = 1  : Rayleigh-Gans-Debye theory
 !                 iqsca = 2  : Mean-field theory 
@@ -80,7 +115,9 @@
 !                 iquiet = 1 : suppress stdout (including warnings)
 !
 !--------------------------------------------------------------------------------
+!
 ! OUTPUT PARAMETERS
+!
 !--------------------------------------------------------------------------------
 !
 ! Cext               : extinction cross section (micron^2)
@@ -99,7 +136,9 @@
 ! dphi               : Phase shift induced by the aggregates
 !
 !--------------------------------------------------------------------------------
-! REVISION HISTORY
+!
+! HISTORY
+!
 !--------------------------------------------------------------------------------
 !
 ! version 1.0 (July 24 2017)
@@ -125,10 +164,7 @@
 ! version 3.0 (Nov. 05, 2020) 
 ! - BUG fixed: Add a simple prescription for negative S(q) for iqcor=3.
 ! - Fixed a code crush for OpenMP mode.
-! - Fixed over/underflow signals:
-!         - under/overflow @ floor/ceiling values in spherical Bessel routine. 
-!         - underflow @ integratino of S_p (too small umin).
-!         - underflow @ the confluent hypergeometric fucntion.
+! - Fixed some over/underflow signals.
 ! - Fixed a type mismatch of "d" for the subroutine 'ludcmp'.
 ! - Fixed a type mismatch of cn1, cn2 in the main subroutine.
 ! - Unified notation for Cabs in iqsca=1 for safety.
@@ -253,9 +289,34 @@ nmax  = nstop
 
 !--------------------------------------------------------------------------------
 !
-! Error messages and some safety checks
+! Check input parameters
 ! 
 !--------------------------------------------------------------------------------
+if (iqsca .ne. 1 .and. iqsca .ne. 2 .and. iqsca .ne. 3) then
+        print *, 'ERROR: Inappropriate iqsca value.'
+        print *, '       STOP.'
+        stop
+endif
+
+if (iqcor .ne. 1 .and. iqcor .ne. 2 .and. iqcor .ne. 3) then
+        print *, 'ERROR: Inappropriate iqcor value.'
+        print *, '       STOP.'
+        stop
+endif
+
+if (nang .le. 1) then
+        print *, 'ERROR: Inappropriate nang value.    '
+        print *, '       nang should be larger than 1.'
+        print *, '       STOP.'
+        stop
+endif
+
+if (iquiet .ne. 0 .and. iquiet .ne. 1) then
+        print *, 'ERROR: Inappropriate iquiet value.'
+        print *, '       STOP.'
+        stop
+endif
+
 if (PN .lt. 1.0) then
         print *, 'ERROR: Number of monomer is less than unity'
         print *, '       STOP.'
@@ -267,11 +328,6 @@ if (df .gt. 3.0) then
         print *, '       STOP.'
         stop
 endif
-if (iqcor .ne. 1 .and. iqcor .ne. 2 .and. iqcor .ne. 3) then
-        print *, 'ERROR: Inappropriate iqcor value.'
-        print *, '       STOP.'
-        stop
-endif
 
 if(numax + nmax .ge. 500 .and. iquiet .eq. 0) then
         print *, "WARNING: the truncation order of monomer's scattered light"
@@ -279,8 +335,9 @@ if(numax + nmax .ge. 500 .and. iquiet .eq. 0) then
         print *, "         This may cause a code crush at computations of   "
         print *, "         the spherical Bessel function of the 1st kind.   "
 endif
+
 !
-! check phase shift
+! compute the phase shift (Equation 9 in Tazaki & Tanaka 2018)
 !
 ff = PN*(R0/RC)**3.0_dp
 call MGmixing(refrel,mgmref,ff)
@@ -289,19 +346,12 @@ dphi0 = 2.0_dp*x0*abs(refrel-1.0_dp)
 dphi  = max(dphic,dphi0)
 
 if (dphi .ge. 1.0_dp .and. iquiet .eq. 0) then
-        print *, 'WARNING: The aggregate phase shift D*PHI exceeds unity.'
+        print *, 'WARNING: The phase shift by an aggregate exceeds unity.'
         print *, '         Output of scattering matrix elements are not  ' 
         print *, '         physically guaranteed.'
 endif
 
-!if (xg .ge. 1.0e6_dp) then
-!        write(*,*) "Safety Stop: "
-!        write(*,*) "Aggregate size parameter exceeds 1d6, where"
-!        write(*,*) "the accuracy of numerical integration of the s_p"
-!        write(*,*) "factor was not checked."
-!        write(*,*) "Calculation is aborted !"
-!        stop
-!endif
+!call spout(iqcor,df) 
 
 !--------------------------------------------------------------------------------
 !
@@ -350,7 +400,6 @@ elseif(iqsca .ge. 2) then
         !  where P_n^m is the associated Legendre function (n: degree, m: order), 
         !  P_n is the Legendre polynominal function 
         !  (see Equations (29, 30) in Tazaki & Tanaka 2018).
-        !
         !  The integration is performed with the Gauss-Legendre quadrature.
         !
         !--------------------------------------------------------------------------------
@@ -371,8 +420,7 @@ elseif(iqsca .ge. 2) then
         !--------------------------------------------------------------------------------
         !
         ! Storing values of the associated Legendgre function and 
-        ! the Legendre polynominals, and derivative of the Legendre polynominals 
-        ! at each Gauss-Ledengre point.
+        ! the Legendre polynominals and its derivative  at each Gauss-Ledengre point.
         !
         ! The values are stored in 
         !       AL1N(n,j) = P_n^1(x_j) : Associated Legendre function with order 1.
@@ -395,7 +443,8 @@ elseif(iqsca .ge. 2) then
         deallocate(PMN,PMND,LP,DLP)
         
         !
-        ! Storing the value of Sp(kRg)
+        ! Preparing arrays for the structure integration Sp(kRg),
+        ! and the translation matrix.
         !
         allocate(Sp(0:numax+nmax),T(2,numax,nmax))
 
@@ -413,7 +462,7 @@ elseif(iqsca .ge. 2) then
         enddo
 
         !
-        ! Caltulate translation coefficients
+        ! Caltulate translation matrix coefficients
         !
         ! Translation coefficients: A and B (Equation # from Tazaki & Tanaka 2018)
         ! T(1,nu,n) : \bar{A}_{1,n}^{1,nu} defined in Equation (14) 
@@ -474,14 +523,14 @@ elseif(iqsca .ge. 2) then
         do n=1,2*nmax
                S(n,n) = 1.0_dp + S(n,n)
         enddo
-        
+        !
         ! Inverting the translation matrix elements (S), 
-        ! and find mean field vector (r).
+        ! and find the mean-field vector (r).
         !       S * r = y 
         !       ==> r = S^{-1} * y 
         call complex_leqs_solver(2*nstop,4*nstop,S,y,r)
-        
-        ! finally, we obtain mean-field scattering coefficients
+        ! 
+        ! Finally, I obtain mean-field scattering coefficients
         ! dd(1,n) : d^(1)_n
         ! dd(2,n) : d^(2)_n
         do n=1,nmax
@@ -492,19 +541,24 @@ elseif(iqsca .ge. 2) then
 endif 
 
 !
-! Compute scattering amplitude from monomer's scattering coefficients
+! Replacing the lorenz-mie scattering coefficients by the mean-field 
+! scattering coefficients, and find scatternig amplitude of each
+! monomer.
 !
 dang=halfpi/real(nang-1,kind=dp)
 call renorm_mie(dd,nstop,nang,dang,S1,S2)
 
+!
+! Compute scattering matrix elements based on scattering amplitude
+! of each monomer and the static structure factor of an aggregate
+!
 Smat = 0.0_dp
-
 do j=1,2*nang-1
         ! scattering angle in radian
         ang(j)  = dang * real(j-1,kind=dp)        
         ! magnitude of scattering vector
         q       = 2.0_dp*k*sin(0.5_dp*ang(j))     
-        ! scattering matrix elements of a monomer
+        ! scattering matrix elements of each monomer
         S11     =       0.5_dp*ABS(S2(j))*ABS(S2(j))
         S11     = S11 + 0.5_dp*ABS(S1(j))*ABS(S1(j))
         S12     =       0.5_dp*ABS(S2(j))*ABS(S2(j))
@@ -512,13 +566,18 @@ do j=1,2*nang-1
         S33     =       DBLE( S1(j)*CONJG(S2(j)) )
         S34     =       AIMAG( S2(j)*CONJG(S1(j)) )
         !
-        ! Compute interference of scattered wave from each monomer
-        ! Sq : static structure factor
+        ! Compute interference of scattered waves based on a statistical 
+        ! distribution of monomers specified by the two-point correlation
+        ! function. The inteference pattern is characterized by the quantity
+        ! called the static structure factor (Sq) as defined in Eq (17) in
+        ! Tazaki & Tanaka (2018). 
+        !
+        ! The analytical expression of the static structure factor can be 
+        ! obtained for the case of iqcor = 1 and 2, but not for iqcor =3. 
+        ! Hence, iqcor=3 requires additional numerical integration.
         !
         if(iqcor .eq. 1) then
-                !
-                ! compute cinfluent hypergeometric function
-                !
+                ! compute confluent hypergeometric function
                 if(df .eq. 3.0_dp) then
                         if(q*q*Rg*Rg/3.0 .ge. eta) then
                                 Sq = 0.0_dp
@@ -562,7 +621,7 @@ do j=1,2*nang-1
 enddo
 
 !
-! Compute scattering cross section 
+! Compute scattering cross section of aggregates
 ! by integrating S11 via Simpson's rule.
 !
 Csca = 0.0_dp
@@ -605,11 +664,11 @@ if (abs(nrm-1.0_dp) .gt. 1.0e-3_dp) then
 end if
 
 !
-! Now, calculate optical cross sections.
+! Calculate optical cross sections.
 !
-! For the case of isolcated individual monomer, 
+! For the case of an isolcated individual monomer, 
 ! each cross section can be written by 
-! (Equation (4.61; 4.62) in Bohren & Huffman book.) 
+! (Equation (4.61; 4.62) in Bohren & Huffman textbook.) 
 !
 !                   nstop
 !            2*pi   ---
@@ -663,12 +722,10 @@ elseif(iqsca .eq. 3) then
         enddo
         Cext  = Cext  * twopi * PN / k / k 
         Cabsp = Cabsp * twopi * PN / k / k 
-        
         !
         ! Geometrical cross section of an aggregate
         !
         call geocross(PN,R0,RC,GC)
-        
         !
         ! Compute "tau" of an aggregate, where Cabsp is RGD theory's one
         !
@@ -1312,7 +1369,7 @@ end subroutine complex_leqs_solver
 !
 !               umin ~ xg * exp(-eta2/d_f)
 !
-!  I adopt eta1 = 25.0, and eta2 = 25.0, respectively.
+!  I adopt eta1 = 25.0, and eta2 = 40.0, respectively.
 !
 !--------------------------------------------------------------------------------
 subroutine integration_of_Sp(iqcor,D,p,xg,Sp)
@@ -1343,7 +1400,7 @@ real(kind=dp),parameter:: b4 =  3.72312019844119
 !--------------------------------------------------------------------------------
 real(kind=dp),parameter:: floorvalue=1.0e-30_dp
 real(kind=dp),parameter:: eta1 = 25.0_dp
-real(kind=dp),parameter:: eta2 = 28.0_dp
+real(kind=dp),parameter:: eta2 = 40.0_dp
 integer                :: n,p,iqcor,isol
 real(kind=dp)::umin,umax,du,xg,D,fc
 real(kind=dp)::lnxa,lnxb,jp,yp,unitary,error
@@ -1363,7 +1420,6 @@ elseif(iqcor .eq. 3) then
         umax = xg * (2.0_dp*eta1)**(1.0_dp/D)
 endif
 umin = xg * exp(-eta2/D)
-umin = max(umin,umax/1.e10_dp)
 du   = (umax/umin) ** (1.0_dp/real(nn-1,kind=dp))
 
 allocate(u(1:nn),intg(1:nn),intg_unit(1:nn))
@@ -1419,7 +1475,6 @@ do n=1,nn
         intg(n)      = u(n) ** (D-1.0_dp) * jp * hp * fc(iqcor,u(n),xg,D)
         intg_unit(n) = u(n) ** (D-1.0_dp) * fc(iqcor,u(n),xg,D)
 enddo
-
 wa      = cmplx(0.0_dp,0.0_dp,kind=dp)
 unitary = 0.0_dp
 do n=1,nn-1
@@ -1430,6 +1485,19 @@ enddo
 unitary = unitary / xg ** D
 Sp      = 0.5_dp * wa / xg ** D
 error   = abs(1.0_dp-unitary)
+
+!
+! Set the floorvalue:
+! For large p and small xg, the real part of Sp will be very small. 
+!
+if(abs(real(Sp)) .lt. floorvalue) then
+        Sp = cmplx(floorvalue,aimag(Sp))
+endif
+if(abs(aimag(Sp)) .lt. floorvalue) then
+        Sp = cmplx(real(Sp),-floorvalue)
+endif
+!
+
 if(error .ge. 1.0e-3_dp) then
         write(*,*) "--------------------------------------------------------"
         write(*,*) "Check unitary condition : the two-points correlation function"
@@ -1443,23 +1511,6 @@ endif
 
 deallocate(u,intg,intg_unit)
 
-        !-------------------------------------------
-        ! Analytic solution for Im(S_{p=0})
-        !-------------------------------------------
-        !hg = 0.0d0
-        !al = 1.0d0/2.0d0
-        !bb = 1.5d0
-        !xxx = -2.0d0*xx(ix)**2.0!/2.0
-        !call chgm(al,bb,xxx,hg)
-        !if(hg*0.d0 /= 0.d0) then
-        !hg=(sqrt(pi)/2.0d0)*(sqrt(2.0d0)*xx(ix))**(-1.0d0)
-        !endif
-        !ImS0 = -(sqrt(2.0d0*pi)/(4.0d0*xx(ix)))*hg
-        !-------------------------------------------
-        ! Output
-        !-------------------------------------------
-        !write(*,*) xx(ix),ix,dble(Sp),-aimag(Sp),dble(SpGL),-aimag(SpGL),-ImS0
-        !write(*,*) xx(ix),dble(Sp),-aimag(Sp),-ImS0
 
 return
 end subroutine integration_of_Sp
@@ -1520,9 +1571,8 @@ end function fc
 ! wide range of parameters is not straightforward because of numerical instability.
 ! However, Jablonski (1994) reported that a proper combination of (i) series 
 ! expansion,(ii) downward recurrence, and (ii) upward recuurence depending on the 
-! order and the argument of the function, give rise to correct results for a wide 
-! range of parameters. In this subroutine, depending on isol=1,2,3, 
-! I opt an algorithm to be solved without instability.
+! order and the argument of the function, gives rise to correct results for a wide 
+! range of parameters. 
 !
 ! The spherical Bessel function of the second kind y_p(x) can be computed by
 ! upward recurrence relation.
@@ -1589,9 +1639,9 @@ end function fc
 !
 !--------------------------------------------------------------------------------
 !
-!  The spherical Bessel function j_p(x) of higher order and small argument 
+!  The spherical Bessel functions of higher order and small argument 
 !  can be very small/large number, which easily causes under/over flow. 
-!  Thus, I adopt floor and ceilling values for j_p(x).
+!  Thus, I adopt floor and ceilling values for j_p(x) and y_p(x).
 !
 !--------------------------------------------------------------------------------
 subroutine sphbessel(M,x,SJ,SY,isol)
@@ -1601,8 +1651,10 @@ integer::M,n,i,isol
 integer,parameter        :: imax = 100    ! Truncation order of series expansion
 integer,parameter        :: nwarmup = 100 ! Warming-up 
 real(kind=dp),parameter  :: eps=1.0e-30_dp
-real(kind=dp),parameter  :: floorvalue=1.0e-140_dp
-real(kind=dp),parameter  :: ceilingvalue=1.0e140_dp
+!real(kind=dp),parameter  :: floorvalue=1.0e-140_dp
+!real(kind=dp),parameter  :: ceilingvalue=1.0e140_dp
+real(kind=dp),parameter  :: floorvalue=1.0e-70_dp
+real(kind=dp),parameter  :: ceilingvalue=1.0e70_dp
 real(kind=dp)            :: K0,K1,x,s,Y0,Y1
 real(kind=dp)            :: wa,xi,FN
 real(kind=dp),dimension(0:M)::SJ,SY
@@ -1678,9 +1730,62 @@ do n=2,M
         if(ABS(SY(n)) .ge. ceilingvalue) exit
 enddo
 
-
 return
 end subroutine sphbessel
+
+!--------------------------------------------------------------------------------
+!
+! Output structure integration s_p(kRg)
+!
+!--------------------------------------------------------------------------------
+subroutine spout(iqcor,df)
+use types; use const
+implicit none
+integer          :: iqcor,p,imax,i
+real(kind=dp)    :: df,k,xg,xmin,xmax,dx
+real(kind=dp)    :: ImS0_xlt1,ImS0_xgt1
+complex(kind=dp) :: sp
+k    = 1.0_dp
+xmin = 1.0e-8_dp
+xmax = 1.0e8_dp
+imax = 250
+dx=(xmax/xmin)**(1.0_dp/real(imax-1,kind=dp))
+write(*,*) "Writing Sp ..."
+
+open(21,file="sp.out",status="unknown")
+write(21,6600) "order p","k*R_g","Re(Sp)","Im(Sp)"
+do p=0,400,25
+        write(*,*) "p = ",p
+        do i=1,imax
+        xg = xmin * dx ** real(i-1,kind=dp)
+        call integration_of_Sp(iqcor,df,p,xg,Sp)
+        ! asymptotic solution for Im(S_p) with p=0.
+        ImS0_xlt1 = -sqrt(2.0_dp*pi)/4.0_dp/xg
+        ImS0_xgt1 = -pi/8.0_dp/xg/xg
+        write(21,6000) p,xg,real(Sp),aimag(Sp),ImS0_xlt1,ImS0_xgt1
+        enddo
+        write(21,*)
+enddo
+close(21)
+
+!-------------------------------------------
+! Analytic solution for Im(S_{p=0})
+!-------------------------------------------
+!hg = 0.0d0
+!al = 1.0d0/2.0d0
+!bb = 1.5d0
+!xxx = -2.0d0*xx(ix)**2.0!/2.0
+!call chgm(al,bb,xxx,hg)
+!if(hg*0.d0 /= 0.d0) then
+!hg=(sqrt(pi)/2.0d0)*(sqrt(2.0d0)*xx(ix))**(-1.0d0)
+!endif
+!ImS0 = -(sqrt(2.0d0*pi)/(4.0d0*xx(ix)))*hg
+
+write(*,*) "sp.out is produced"
+6000 format(' ',I15,1P8E15.5)
+6600 format(' ',8A15)
+return
+end subroutine spout
 
 !*****************************************************************************80
 !
@@ -2011,42 +2116,6 @@ end subroutine chgm
 
   return
 end subroutine gamma
-
-!
-! Output Sp
-!
-!subroutine spout(iqcor,df)
-!implicit none
-!integer::iqcor,p,imax,i
-!double precision::df,k,xg
-!double precision::xmin,xmax,dx
-!complex(kind=dp)::sp
-!k = 1.0d0
-!xmin=1.0d-2
-!xmax=1.0d4
-!imax=250
-!dx=(xmax/xmin)**(1.0d0/dble(imax-1))
-!write(*,*) "Writing Sp ..."
-!open(21,file="sp.out",status="unknown")
-!write(21,6600) "exp. order p","k*R_g","Re(sp)","Im(sp)","Im(s_{p=0})"
-!!do p=0,0
-!do p=0,25
-!        write(*,*) "p = ",p
-!        do i=1,imax
-!        write(*,*) i," / ",imax," x = ",xg
-!        xg = xmin * dx ** (dble(i-1))
-!        call integration_of_Sp(iqcor,df,p,k,xg,Sp) 
-!        write(21,6000) p,xg,dble(Sp),aimag(Sp),-(acos(-1.0d0)/8.0d0)*xg**(-2.0d0)
-!        enddo
-!
-!write(21,*)
-!enddo
-!close(21)
-!write(*,*) "sp.out is produced"
-!6000 format(' ',I15,1P4E15.5)
-!6600 format(' ',4A15)
-!return
-!end subroutine spout
 
 !--------------------------------------------------------------------------------
 !
