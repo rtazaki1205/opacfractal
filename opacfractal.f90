@@ -18,9 +18,7 @@
 ! tested, the code may still contain a bug. I am not responsible for any damages
 ! caused by the use of the code. If you find a bug, please let me know.
 !
-!                                                   2020. Nov. 11              
-!                                                   Ryo Tazaki                  
-!                                                   University of Amsterdam    
+!                                                   Ryo Tazaki (2020/Nov/11)                
 !                                                   email: r.tazaki -at- uva.nl 
 !
 !--------------------------------------------------------------------------------
@@ -62,12 +60,15 @@
 ! iqsca = 1     : Tazaki et al. 2016, ApJ, 823, 70
 ! iqsca = 2     : Botet et al. 1997, ApOpt, 36, 8791
 ! iqsca = 3     : Tazaki & Tanaka 2018, ApJ, 860, 79
-!                 Okuzumi et al. 2009, ApJ, 707, 1247
 !
 ! The two-point correlation function of monomers:
 ! iqcor = 1     : Tazaki et al. 2016, ApJ, 823, 70 
 ! iqcor = 2     : Berry & Percival 1986, AcOpt, 33, 577
 ! iqcor = 3     : Botet et al. 1995, JPhA, 28, 297
+!
+! The geometric cross section of aggregates (to be used when iqsca=3):
+! iqgeo = 2     : Okuzumi et al. 2009, ApJ, 707, 1247
+! iqgeo = 3     : Empirical formulae obtained by mean-field extinction
 !
 !--------------------------------------------------------------------------------
 !
@@ -115,7 +116,8 @@
 !                 iqcor = 3  : Fractal dimension cutoff
 ! iqgeo         : Switch for the two-point correlation function 
 !                 iqgeo = 1  : pi * rc^2
-!                 iqgeo = 2  : Okuzumi et al. (2009) 
+!                 iqgeo = 2  : Okuzumi et al. (2009)
+!                 iqgeo = 3  : Empirical formulae from mean-field extinction
 ! iquiet        : Switch for standard output during a calculation
 !                 iquiet = 0 : show stdout 
 !                 iquiet = 1 : suppress stdout (including warnings)
@@ -322,7 +324,7 @@ if (iqcor .ne. 1 .and. iqcor .ne. 2 .and. iqcor .ne. 3) then
         stop
 endif
 
-if (iqgeo .ne. 1 .and. iqgeo .ne. 2) then
+if (iqgeo .ne. 1 .and. iqgeo .ne. 2 .and. iqgeo .ne. 3) then
         print *, 'ERROR: Inappropriate iqgeo value.'
         print *, '       STOP.'
         stop
@@ -777,6 +779,9 @@ elseif(iqsca .eq. 3) then
                 GC = pi * RC * RC
         elseif(iqgeo .eq. 2) then
                 call geocross(PN,R0,RC,GC)
+        elseif(iqgeo .eq. 3) then
+                call geocross_mft(PN,df,GC)
+                GC = GC * PN * pi * R0 * R0
         endif
         !
         ! Compute "tau" of an aggregate, where Cabsp is RGD theory's one
@@ -2215,10 +2220,17 @@ GC = min(GC,PN*pi*a0*a0)
 return
 end subroutine geocross
 
-! 
-! Geometrical cross section 
-! k0 : interpolatation (extrapolation) of bcca and bpca
+!--------------------------------------------------------------------------------
 !
+! Fitting formulae of geometrical cross section derived from 
+! the mean-field extinction cross section at short-wavelength limit.
+!
+! CAUTION:
+! The fractal prefactor is assumed to have a value obtained by
+! linear interpolation (or extrapolation) of those values of 
+! BCCA and BPCA.
+!
+!--------------------------------------------------------------------------------
 subroutine geocross_mft(PN,df,Gratio)
 use types
 implicit none
