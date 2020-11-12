@@ -4,7 +4,7 @@ EXEFNAME = $(PROGRAM).x
 SRCS = call2.f90 opacfractal.f90
 OBJS = $(SRCS:.f90=.o) 
 
-debug  = true
+#debug  = true
 openmp = true
 
 FC = gfortran
