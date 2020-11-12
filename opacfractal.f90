@@ -189,7 +189,6 @@
 module types
 implicit none
 integer, parameter      :: dp = selected_real_kind(P=15)
-logical                 :: debug_mode = .false.
 end module types
 
 module const
@@ -285,9 +284,6 @@ Rc      =  sqrt(5.0_dp/3.0_dp)*Rg       ! Characteristic radius of the aggregate
 xg      =  k * Rg                       ! size parameter of aggregates
 x0      =  k * R0                       ! size parameter of a monomer
 
-if(iquiet .eq. 0) then
-write(*,fmt='(A6,1PE12.5,A6,1PE12.5,A9,I5)') " x0 = ",x0,", Rg = ",Rg
-endif
 
 !--------------------------------------------------------------------------------
 !
@@ -304,6 +300,16 @@ nmax  = nstop
 ! Check input parameters
 ! 
 !--------------------------------------------------------------------------------
+if(iquiet .eq. 0) then
+write(*,fmt='(1PE15.5,A)') lmd,   " =  wavelength (um)"
+write(*,fmt='(1PE15.5,A)') R0 ,   " =  monomer radius (um)"
+write(*,fmt='(1PE15.5,A)') Rg ,   " =  gyration radius (um)"
+write(*,fmt='(1PE15.5,A)') Rc ,   " =  characteristic radius (um)"
+write(*,fmt='(1PE15.5,A)') x0,    " =  size parameter of a monomer x0 (um)"
+write(*,fmt='(1PE15.5,A)') xg,    " =  size parameter of an aggregate xg (um)"
+write(*,fmt='(I15,A)'    ) nstop, " =  expansion order of scat. field."
+endif
+
 if (iqsca .ne. 1 .and. iqsca .ne. 2 .and. iqsca .ne. 3) then
         print *, 'ERROR: Inappropriate iqsca value.'
         print *, '       STOP.'
@@ -570,7 +576,7 @@ elseif(iqsca .ge. 2) then
         deallocate(T,S,y,r)
 endif 
 
-if(debug_mode) then
+if(iquiet .eq. 0) then
 print *, '----- Lorenz-Mie coefficients -----'
 write(*,fmt='(A3,4A15)') "n","Re(an)","Im(an)","Re(bn)","Im(bn)"
 do n=1,nstop
@@ -1495,15 +1501,6 @@ do n=1,nn
         yp=SY(p)
         hp = cmplx(jp,yp,kind=dp)
         deallocate(SJ,SY)
-
-        !if(debug_mode) then
-        !if(n .eq. 1     )      write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
-        !if(n .eq. int(0.2*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
-        !if(n .eq. int(0.4*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
-        !if(n .eq. int(0.6*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
-        !if(n .eq. int(0.8*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
-        !if(n .eq. 1.0*nn)      write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
-        !endif
 
         if(jp*0.0_dp /= 0.0_dp .or. isnan(jp) .eqv. .true.) then
                write(*,*) "--------------------------------------------------------"
