@@ -30,10 +30,10 @@ real(kind=dp)::Gratio,tmp
 !--------------------------------------------------------------------------------
 iqsca  = 3                               ! A method to solve light scattering
 iqcor  = 1                               ! correlation function
-iqgeo  = 2                               ! geometric cross section
+iqgeo  = 3                               ! geometric cross section
 iquiet = 1                               ! stdout
 R0     = 1.e-1_dp                        ! Monomer radius (micron)
-Rv     = 1.e2_dp                         ! Volume equivalent radius (micron)
+Rv     = 3.e1_dp                         ! Volume equivalent radius (micron)
 PN     = (Rv/R0)**3.0_dp                 ! Number of monomer in an aggregate
 nang   = 90*100+1                        ! Angle mesh
 !--------------------------------------------------------------------------------
