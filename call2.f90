@@ -35,8 +35,7 @@ iquiet = 1                               ! stdout
 R0     = 1.e-1_dp                        ! Monomer radius (micron)
 Rv     = 1.e2_dp                         ! Volume equivalent radius (micron)
 PN     = (Rv/R0)**3.0_dp                 ! Number of monomer in an aggregate
-nang   = 90*100+1                            ! Angle mesh
-!ref    = cmplx(1.33_dp,0.1_dp,kind=dp)  ! Complex refractive index
+nang   = 90*100+1                        ! Angle mesh
 !--------------------------------------------------------------------------------
 ! AGGREGATE STRUCTURE MODEL 
 !--------------------------------------------------------------------------------
@@ -46,43 +45,30 @@ do j=1,ndf
         DF(j) = df_min + real(j-1,kind=dp)*(df_max-df_min)/real(ndf-1,kind=dp)
         k0(j) = (k0_bpca-k0_bcca)/(df_bpca-df_bcca)*(Df(j)-df_bpca)+k0_bpca
 enddo
-
 !--------------------------------------------------------------------------------
 ! Wavelength mesh
 !--------------------------------------------------------------------------------
-!wlmin = 1.0e-1_dp
-!wlmax = 1.0e3_dp
-!dwl   = (wlmax/wlmin) ** (1.0_dp/real(nwl-1,kind=dp))
-!do iwl=1,nwl
-!        wl(iwl) = wlmin * dwl ** real(iwl-1,kind=dp)
-!enddo
 open(16,file="astrosil.nk",status="old")
 do iwl=1,nwl
         read(16,*) wl(iwl),re(iwl),im(iwl)
 enddo
 close(16)
-!re = 2.0_dp
-!im = 1.0_dp
 !--------------------------------------------------------------------------------
 ! RUN OPACFRACTAL
 !--------------------------------------------------------------------------------
 allocate(Smat(1:4,1:2*nang-1))
-do j=5,ndf
-!do j=7,7
-        !$OMP parallel do schedule (static,1)                    &
-        !$OMP default(none)                                      &
-        !$OMP shared(wl,re,im,CS)                                &
-        !$OMP shared(j,R0,PN,Df,k0,iqsca,iqcor,iqgeo,iquiet,nang)&
+do j=1,ndf
+        !$OMP parallel do schedule (static,1)                     &
+        !$OMP default(none)                                       &
+        !$OMP shared(wl,re,im,CS)                                 &
+        !$OMP shared(j,R0,PN,Df,k0,iqsca,iqcor,iqgeo,iquiet,nang) &
         !$OMP private(lmd,ref,Cext,Csca,Cabsp,Gsca,Smat,dphi,tmp)   
-        !do iwl=1,nwl
         do iwl=1,nwl
                 lmd=wl(iwl)
-                ref= cmplx(re(iwl),im(iwl),kind=dp)
+                ref=cmplx(re(iwl),im(iwl),kind=dp)
                 write(*,fmt='(A5,f3.1,A15,1PE15.5,A15,I3)') "Df = ",df(j),&
                         "wavel (mic) = ",lmd,&
                         ": thread = ",omp_get_thread_num()
-                !call opticslimit(iqcor,lmd,ref,df(j),k0(j),PN,R0,tmp) 
-                !CS(j,0,iwl) = tmp
                 call meanscatt(lmd,R0,PN,Df(j),k0(j),ref,iqsca,iqcor,iqgeo,iquiet,nang,&
                                 Cext,Csca,Cabsp,Gsca,Smat,dphi)
                 CS(j,1,iwl) = Cext
@@ -90,25 +76,22 @@ do j=5,ndf
                 CS(j,3,iwl) = Cabsp
                 CS(j,4,iwl) = gsca
                 CS(j,5,iwl) = dphi
-                !write(*,*) tmp
         enddo
         !$OMP end parallel do
 enddo
-!write(*,2100) CS(ndf,1,nwl),CS(ndf,0,nwl)
-!stop
 deallocate(Smat)
 !--------------------------------------------------------------------------------
 ! OUTPUT 
 !--------------------------------------------------------------------------------
-open(10,file="out_opc_astrosil_Rm01um_R10um_2.dat",status="unknown")
-do j=5,ndf
+open(10,file="out_opc.dat",status="unknown")
+do j=1,ndf
 write(10,1100) iqsca,   " = iqsca"
 write(10,1100) iqcor,   " = iqcor"
 write(10,1100) iqgeo,   " = iqgeo"
 write(10,1000) R0,      " = Monomer radius (um)"
 write(10,1000) PN,      " = Number of monomers"
-!write(10,1000) real(ref), " = Re(m)"
-!write(10,1000) aimag(ref)," = Im(m)"
+write(10,1000) real(ref), " = Re(m)"
+write(10,1000) aimag(ref)," = Im(m)"
 write(10,1000) DF(j),   " = Fractal dimension"
 write(10,1000) k0(j),   " = Fractal prefactor"
 write(10,*) "---------------------------------"

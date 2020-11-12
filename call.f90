@@ -39,7 +39,7 @@ call meanscatt(lmd,R0,PN,Df,k0,ref,iqsca,iqcor,iqgeo,iquiet,nang,&
 ! OUTPUT 
 !--------------------------------------------------------------------------------
 DANG=0.5d0*PI/DBLE(NANG-1)
-open(10,file="out_smat_develop.dat",status="unknown")
+open(10,file="out_smat.dat",status="unknown")
 write(10,1100) iqsca,   " = iqsca"
 write(10,1100) iqcor,   " = iqcor"
 write(10,1100) iqgeo,   " = iqgeo"
