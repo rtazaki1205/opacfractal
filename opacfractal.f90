@@ -10,7 +10,7 @@
 ! scattering solution based on the Rayleigh-Gans-Debye theory and the Mean field 
 ! theory.
 ! 
-! If you publish a paper that contains results obtained by this code, 
+! If you wish to publish a paper that contains results obtained by this code, 
 ! please acknowledge this code and cite relevant papers. 
 !
 ! Disclaimer:
@@ -18,7 +18,10 @@
 ! tested, the code may still contain a bug. I am not responsible for any damages
 ! caused by the use of the code. If you find a bug, please let me know.
 !
-!                                                      Ryo Tazaki (2020/Nov/08)
+!                                                   2020. Nov. 11              
+!                                                   Ryo Tazaki                  
+!                                                   University of Amsterdam    
+!                                                   email: r.tazaki -at- uva.nl 
 !
 !--------------------------------------------------------------------------------
 !
@@ -52,8 +55,8 @@
 !
 !--------------------------------------------------------------------------------
 !
-! If you publish a paper by using this code, following references should be 
-! cited depending on the code options (iqsca and iqcor) you used.
+! If you wish to publish a paper by using this code, following references should 
+! be cited depending on the code options (iqsca and iqcor) you used.
 !
 ! Light scattering solver:
 ! iqsca = 1     : Tazaki et al. 2016, ApJ, 823, 70
@@ -62,13 +65,13 @@
 !                 Okuzumi et al. 2009, ApJ, 707, 1247
 !
 ! The two-point correlation function of monomers:
-! iqcor = 1     : Tazaki et al. 2016, ApJ, 823, 70      (Recommend)
+! iqcor = 1     : Tazaki et al. 2016, ApJ, 823, 70 
 ! iqcor = 2     : Berry & Percival 1986, AcOpt, 33, 577
 ! iqcor = 3     : Botet et al. 1995, JPhA, 28, 297
 !
 !--------------------------------------------------------------------------------
 !
-! EXTERNAL SUBROUTINES 
+! LIST OF SUBROUTINES BY OTHER AUTHORS
 !
 !--------------------------------------------------------------------------------
 !
@@ -96,7 +99,7 @@
 ! Df            : fractal dimension 
 ! PN            : number of monomers
 ! k0            : fractal prefactor; PN = k0 (Rg/R0)^Df
-! refrel        : complex refractive index (NOT DIELECTRIC FUNCTION)
+! refrel        : complex refractive index of a monomer particle
 ! nang          : Number of angular grid between 0 ang 90 degrees.
 !                 If nang=91, then angular width is 1 degree.
 !                 <TIPS>
@@ -110,6 +113,9 @@
 !                 iqcor = 1  : Gaussian cutoff 
 !                 iqcor = 2  : Exponential cutoff 
 !                 iqcor = 3  : Fractal dimension cutoff
+! iqgeo         : Switch for the two-point correlation function 
+!                 iqgeo = 1  : pi * rc^2
+!                 iqgeo = 2  : Okuzumi et al. (2009) 
 ! iquiet        : Switch for standard output during a calculation
 !                 iquiet = 0 : show stdout 
 !                 iquiet = 1 : suppress stdout (including warnings)
@@ -175,6 +181,7 @@
 ! - Removed the iqcor=4 option because it is practically unimportant.
 ! - Implemented Okuzumi et al. (2009) formula for geometrical cross-section.
 ! - Added a return variable "phase shift"
+! - Added a new switch for geometric cross section
 !
 !--------------------------------------------------------------------------------
 !       Some constants
@@ -182,6 +189,7 @@
 module types
 implicit none
 integer, parameter      :: dp = selected_real_kind(P=15)
+logical                 :: debug_mode = .false.
 end module types
 
 module const
@@ -206,7 +214,7 @@ end module const
 !
 !--------------------------------------------------------------------------------
 
-subroutine meanscatt(lmd,R0,PN,Df,k0,refrel,iqsca,iqcor,iquiet,nang,&
+subroutine meanscatt(lmd,R0,PN,Df,k0,refrel,iqsca,iqcor,iqgeo,iquiet,nang,&
                 Cext,Csca,Cabsp,g_asym,Smat,dphi)
 use types; use const
 implicit none
@@ -217,6 +225,7 @@ implicit none
 
 integer                 :: iqsca              ! switch of method
 integer                 :: iqcor              ! switch of correlation function
+integer                 :: iqgeo              ! switch of geometric cross section
 integer                 :: iquiet             ! switch of suppress warning messages
 integer                 :: nang               ! Number of angle mesh between 0 to 90 deg.
 real(kind=dp)           :: PN                 ! Number of monomers
@@ -277,7 +286,7 @@ xg      =  k * Rg                       ! size parameter of aggregates
 x0      =  k * R0                       ! size parameter of a monomer
 
 if(iquiet .eq. 0) then
-write(*,fmt='(A6,1PE12.5,A6,1PE12.5,A9,I5)') " x0 = ",x0,", xg = ",xg
+write(*,fmt='(A6,1PE12.5,A6,1PE12.5,A9,I5)') " x0 = ",x0,", Rg = ",Rg
 endif
 
 !--------------------------------------------------------------------------------
@@ -303,6 +312,12 @@ endif
 
 if (iqcor .ne. 1 .and. iqcor .ne. 2 .and. iqcor .ne. 3) then
         print *, 'ERROR: Inappropriate iqcor value.'
+        print *, '       STOP.'
+        stop
+endif
+
+if (iqgeo .ne. 1 .and. iqgeo .ne. 2) then
+        print *, 'ERROR: Inappropriate iqgeo value.'
         print *, '       STOP.'
         stop
 endif
@@ -354,7 +369,6 @@ if (dphi .ge. 1.0_dp .and. iquiet .eq. 0) then
         print *, '         physically guaranteed.'
 endif
 
-!call spout(iqcor,df) 
 
 !--------------------------------------------------------------------------------
 !
@@ -371,6 +385,7 @@ ad = cmplx(0.0_dp,0.0_dp,kind=dp)
 dd = cmplx(0.0_dp,0.0_dp,kind=dp)
 !
 call lorenz_mie(x0,refrel,nstop,an,bn)
+!
 ad(1,:) = an(:)
 ad(2,:) = bn(:)
 !
@@ -458,12 +473,14 @@ elseif(iqsca .ge. 2) then
         !
         ! The structure integration Sp 
         !
+                !call spout(iqcor,df) !for output 
         do p=0,numax+nmax
               Sp_tmp = cmplx(0.0_dp,0.0_dp,kind=dp)
               call integration_of_Sp(iqcor,df,p,xg,Sp_tmp)
               Sp(p) = Sp_tmp
         enddo
-
+        
+        !--------------------------------------------------------------------------------
         !
         ! Caltulate translation matrix coefficients
         !
@@ -473,10 +490,20 @@ elseif(iqsca .ge. 2) then
         ! anunp     : a(nu,n,p)            defined in Equation (29)
         ! bnunp     : b(nu,n,p)            defined in Equation (30)
         !
-        ! TIPs for efficient computation:
-        ! If p has same parity as n+nu, a(nu,n,p) .ne. 0 and b(nu,n,p) = 0
-        ! If p has not same parity as n+nu, b(nu,n,p) .ne. 0 and a(nu,n,p) = 0
+        ! Note about the rule of rum with respect to the index p
+        ! (RT and Botet, in private communication, 2017).
         !
+        ! Just before Equation (4) in Botet et al. (1997), it is written that 
+        ! p should have the same parity as n+nu. However, this is only true
+        ! true for a(nu,n,p), and not for b(nu,n,p) 
+        ! Thus, in this code, index p runs ALL integers between |nu-n| and nu+n.
+        !
+        ! Tips for efficient computation. 
+        ! The parity of the integrand of a and b leads following properties:
+        ! - a(nu,n,p) .ne. 0 and b(nu,n,p) = 0 when p has the same parity as n+nu 
+        ! - b(nu,n,p) .ne. 0 and a(nu,n,p) = 0 when p has the opposite parity to n+nu 
+        !
+        !--------------------------------------------------------------------------------
         do nu=1,numax
                 do n=1,nmax
                       pmin=abs(n-nu)
@@ -504,7 +531,6 @@ elseif(iqsca .ge. 2) then
                       T(2,nu,n) = sumB * 2.0_dp * real(2*nu+1,kind=dp) / real(n*(n+1)*nu*(nu+1),kind=dp)
                 enddo
         enddo
-
         deallocate(x,w,Sp,AL1N,LN,DLN)
         allocate(S(2*numax,2*nmax),y(2*nmax),r(2*nmax))
         
@@ -515,10 +541,10 @@ elseif(iqsca .ge. 2) then
         
         do n=1,nmax
                 do nu=1,numax
-                S(2*n-1,2*nu-1) = (PN-1.0_dp) * ad(1,n) * T(1,nu,n)          !a*A
-                S(2*n-1,2*nu)   = (PN-1.0_dp) * ad(1,n) * T(2,nu,n)          !a*B
-                S(2*n,2*nu-1)   = (PN-1.0_dp) * ad(2,n) * T(2,nu,n)          !b*B
-                S(2*n,2*nu)     = (PN-1.0_dp) * ad(2,n) * T(1,nu,n)          !b*A
+                S(2*n-1,2*nu-1) = (PN-1.0_dp) * ad(1,n) * T(1,nu,n)  !a*A
+                S(2*n-1,2*nu)   = (PN-1.0_dp) * ad(1,n) * T(2,nu,n)  !a*B
+                S(2*n,2*nu-1)   = (PN-1.0_dp) * ad(2,n) * T(2,nu,n)  !b*B
+                S(2*n,2*nu)     = (PN-1.0_dp) * ad(2,n) * T(1,nu,n)  !b*A
                 enddo
                 y(2*n-1) = ad(1,n)
                 y(2*n)   = ad(2,n)
@@ -536,12 +562,26 @@ elseif(iqsca .ge. 2) then
         ! Finally, I obtain mean-field scattering coefficients
         ! dd(1,n) : d^(1)_n
         ! dd(2,n) : d^(2)_n
+        !
         do n=1,nmax
            dd(1,n) = r(2*n-1) 
            dd(2,n) = r(2*n)  
         enddo
         deallocate(T,S,y,r)
 endif 
+
+if(debug_mode) then
+print *, '----- Lorenz-Mie coefficients -----'
+write(*,fmt='(A3,4A15)') "n","Re(an)","Im(an)","Re(bn)","Im(bn)"
+do n=1,nstop
+  write(*,fmt='(I3,1P4E15.5)') n,real(ad(1,n)),aimag(ad(1,n)),real(ad(2,n)),aimag(ad(2,n))
+enddo
+print *, '----- Mean field coefficients -----'
+write(*,fmt='(A3,4A15)') "n","Re(d1n(1))","Im(d1n(1))","Re(d1n(2))","Im(d1n(2))"
+do n=1,nstop
+  write(*,fmt='(I3,1P4E15.5)') n,real(dd(1,n)),aimag(dd(1,n)),real(dd(2,n)),aimag(dd(2,n))
+enddo
+endif
 
 !
 ! Replacing the lorenz-mie scattering coefficients by the mean-field 
@@ -636,7 +676,6 @@ do j=1,nang-1
 enddo
 Csca  = twopi     * Csca / k / k
 PF(:) = Smat(1,:) / Csca / k / k
-
 !
 ! asymmetry parameter by integrating
 ! phase function with Simpson's rule.
@@ -728,7 +767,11 @@ elseif(iqsca .eq. 3) then
         !
         ! Geometrical cross section of an aggregate
         !
-        call geocross(PN,R0,RC,GC)
+        if(iqgeo .eq. 1) then
+                GC = pi * RC * RC
+        elseif(iqgeo .eq. 2) then
+                call geocross(PN,R0,RC,GC)
+        endif
         !
         ! Compute "tau" of an aggregate, where Cabsp is RGD theory's one
         !
@@ -737,7 +780,7 @@ elseif(iqsca .eq. 3) then
         ! RGD theory with geometrical optics approximation.
         ! TIP: To avoid underflow, tau>eta=10, Cabsp = GC.
         !
-        if(tau .ge. 25.0_dp) then 
+        if(tau .ge. 10.0_dp) then 
                 Cabsp = GC
         else
                 Cabsp = GC * (1.0_dp - exp(-tau))      
@@ -1241,7 +1284,7 @@ end subroutine lpn
 !--------------------------------------------------------------------------------
 !
 !  This subroutine finds the inverse matrix of ( n , n ) complex matrix.
-!  I use a straight forward way to do this, although the method is 
+!  I adopt a straightforward way to do this, although the method is 
 !  inefficient in terms of memory (Press et al. 1992).
 !
 !  Consider a set of complex n linear equations:
@@ -1425,15 +1468,20 @@ endif
 umin = xg * exp(-eta2/D)
 du   = (umax/umin) ** (1.0_dp/real(nn-1,kind=dp))
 
+
+
 allocate(u(1:nn),intg(1:nn),intg_unit(1:nn))
 do n=1,nn
         u(n) = umin * du ** real(n-1,kind=dp)
 enddo
+
+! calculate boundary for Bessel solver.
+lnxa=a1*dble(p)**3.0_dp+a2*dble(p)**2.0_dp+a3*dble(p)+a4
+lnxb=b1*dble(p)**3.0_dp+b2*dble(p)**2.0_dp+b3*dble(p)+b4
+
 intg      = cmplx(0.0_dp,0.0_dp,kind=dp)
 intg_unit = 0.0_dp
 do n=1,nn
-        lnxa=a1*dble(p)**3.0_dp+a2*dble(p)**2.0_dp+a3*dble(p)+a4
-        lnxb=b1*dble(p)**3.0_dp+b2*dble(p)**2.0_dp+b3*dble(p)+b4
         if(log(u(n)) .lt. lnxa) then
                 isol = 1
         elseif(log(u(n)) .gt. lnxb) then
@@ -1447,6 +1495,15 @@ do n=1,nn
         yp=SY(p)
         hp = cmplx(jp,yp,kind=dp)
         deallocate(SJ,SY)
+
+        !if(debug_mode) then
+        !if(n .eq. 1     )      write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
+        !if(n .eq. int(0.2*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
+        !if(n .eq. int(0.4*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
+        !if(n .eq. int(0.6*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
+        !if(n .eq. int(0.8*nn)) write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
+        !if(n .eq. 1.0*nn)      write(*,fmt='(I3,1PE24.15,1P2E18.9)') p,u(n),jp,yp
+        !endif
 
         if(jp*0.0_dp /= 0.0_dp .or. isnan(jp) .eqv. .true.) then
                write(*,*) "--------------------------------------------------------"
@@ -1488,7 +1545,7 @@ enddo
 unitary = unitary / xg ** D
 Sp      = 0.5_dp * wa / xg ** D
 error   = abs(1.0_dp-unitary)
-
+        
 !
 ! Set the floorvalue:
 ! For large p and small xg, the real part of Sp will be very small. 
@@ -1745,7 +1802,7 @@ use types; use const
 implicit none
 integer          :: iqcor,p,imax,i
 real(kind=dp)    :: df,k,xg,xmin,xmax,dx
-real(kind=dp)    :: ImS0_xlt1,ImS0_xgt1
+real(kind=dp)    :: ImS0_xlt1,ImS0_xgt1,ReSp
 complex(kind=dp) :: sp
 k    = 1.0_dp
 xmin = 1.0e-8_dp
@@ -1753,10 +1810,9 @@ xmax = 1.0e8_dp
 imax = 250
 dx=(xmax/xmin)**(1.0_dp/real(imax-1,kind=dp))
 write(*,*) "Writing Sp ..."
-
 open(21,file="sp.out",status="unknown")
 write(21,6600) "order p","k*R_g","Re(Sp)","Im(Sp)"
-do p=0,400,25
+do p=0,20
         write(*,*) "p = ",p
         do i=1,imax
         xg = xmin * dx ** real(i-1,kind=dp)
@@ -1764,7 +1820,11 @@ do p=0,400,25
         ! asymptotic solution for Im(S_p) with p=0.
         ImS0_xlt1 = -sqrt(2.0_dp*pi)/4.0_dp/xg
         ImS0_xgt1 = -pi/8.0_dp/xg/xg
-        write(21,6000) p,xg,real(Sp),aimag(Sp),ImS0_xlt1,ImS0_xgt1
+        ! asymptotic solution for Re(s_p) for all p.
+        ! only valid for 2 < df <= 3.
+        ReSp = (df/(16.0*xg*xg))&
+                *Gamma(0.5_dp+0.5_dp*(df-3.0_dp))/Gamma(0.5_dp*df)
+        write(21,6000) p,xg,real(Sp),aimag(Sp),ReSp
         enddo
         write(21,*)
 enddo
@@ -2157,6 +2217,122 @@ GC = min(GC,PN*pi*a0*a0)
 !
 return
 end subroutine geocross
+
+! 
+! Geometrical cross section 
+! k0 : interpolatation (extrapolation) of bcca and bpca
+!
+subroutine geocross_mft(PN,df,Gratio)
+use types
+implicit none
+integer::i
+integer,parameter::ndim=15
+real(kind=dp),dimension(0:ndim)::a,b,c,d,e,f,g,h,fdim
+real(kind=dp)                ::aa,bb,cc,dd,ee,ff,gg,hh
+real(kind=dp)                ::PN,df,Gratio
+DATA (fdim(i),i=0,15) / 1.50000E+00,    1.60000E+00,    1.70000E+00,    1.80000E+00,&
+                        1.90000E+00,    2.00000E+00,    2.10000E+00,    2.20000E+00,&
+                        2.30000E+00,    2.40000E+00,    2.50000E+00,    2.60000E+00,&
+                        2.70000E+00,    2.80000E+00,    2.90000E+00,    3.00000E+00 /
+DATA (a(i),i=0,15) /    7.13973E+02,    1.16423E+03,    3.33395E+02,    3.56949E+02,&
+                        2.74600E+00,    3.04834E+02,    3.22197E+02,    4.03725E+02,&
+                        4.39512E+02,    4.26389E+02,    4.53031E+02,    4.52352E+02,&
+                        4.43447E+02,    4.35774E+02,    4.40590E+02,    4.50909E+02 /
+DATA (b(i),i=0,15) /   -1.08072E-01,   -1.05630E-01,   -1.15695E-01,   -1.24080E-01,&
+                       -2.52337E-03,   -8.12464E-02,   -3.39455E-02,    7.18452E-02,&
+                        6.30843E-02,   -1.98444E-02,   -1.24053E-01,   -1.74670E-01,&
+                       -1.95718E-01,   -2.04959E-01,   -2.07496E-01,   -2.04854E-01 /
+DATA (c(i),i=0,15) /    6.96352E+00,    7.44311E+00,    6.16310E+00,    6.16324E+00,&
+                        1.18113E+00,    5.90229E+00,    5.93429E+00,    6.13033E+00,&
+                        6.21396E+00,    6.37749E+00,    6.34347E+00,    6.30390E+00,&
+                        6.25537E+00,    6.21575E+00,    6.20834E+00,    6.21497E+00 /
+DATA (d(i),i=0,15) /    2.89145E-02,    2.28560E-02,    2.83661E-02,    3.18105E-02,&
+                        9.26620E-02,    2.80617E-02,    1.93156E-02,    2.41211E-05,&
+                       -9.34488E-05,   -8.23762E-05,    1.91956E-02,    2.93221E-02,&
+                        3.44086E-02,    3.71157E-02,    3.81358E-02,    3.78502E-02 /
+DATA (e(i),i=0,15) /    1.52260E+00,    1.29338E+00,    1.10944E+00,    9.16614E-01,&
+                        6.77090E-01,    6.26109E-01,    5.38993E-01,    4.52138E-01,&
+                        3.94309E-01,    6.19632E-01,    4.83615E-01,    4.00043E-01,&
+                        3.32825E-01,    2.78355E-01,    2.32785E-01,    1.93256E-01 /
+DATA (f(i),i=0,15) /   -5.05108E-02,   -1.51396E-02,    9.11257E-03,    2.25686E-02,&
+                        1.34713E-02,    5.34920E-02,    7.53823E-02,    1.08882E-01,&
+                        1.53220E-01,    1.65246E-01,    1.98459E-01,    2.27960E-01,&
+                        2.55767E-01,    2.81834E-01,    3.06280E-01,    3.29231E-01 /
+DATA (g(i),i=0,15) /    1.55847E+00,    1.41197E+00,    1.32293E+00,    1.31261E+00,&
+                        1.46648E+00,    1.32681E+00,    1.30102E+00,    1.31291E+00,&
+                        1.19121E+00,    8.13122E-01,    8.65730E-01,    8.40165E-01,&
+                        8.05872E-01,    7.64332E-01,    7.18741E-01,    6.72135E-01 /
+DATA (h(i),i=0,15) /    8.90935E-01,    8.75141E-01,    8.65479E-01,    8.80248E-01,&
+                        9.46148E-01,    9.44240E-01,    9.74293E-01,    1.04852E+00,&
+                        1.11467E+00,    8.78236E-01,    9.61048E-01,    1.00913E+00,&
+                        1.05517E+00,    1.10051E+00,    1.14855E+00,    1.20307E+00 /
+do i=0,ndim-1
+      if(fdim(i) .le. df .and. fdim(i+1) .ge. df) then
+              aa = (a(i+1)-a(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+a(i)
+              bb = (b(i+1)-b(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+b(i)
+              cc = (c(i+1)-c(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+c(i)
+              dd = (d(i+1)-d(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+d(i)
+              ee = (e(i+1)-e(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+e(i)
+              ff = (f(i+1)-f(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+f(i)
+              gg = (g(i+1)-g(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+g(i)
+              hh = (h(i+1)-h(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+h(i)
+              exit
+      endif
+enddo
+Gratio  = aa*PN**bb*exp(-cc/PN**dd)+ee*PN**ff*exp(-gg/PN**hh)
+Gratio  = 1.0_dp / Gratio
+return
+end subroutine geocross_mft
+
+subroutine opticslimit(iqcor,lmd,refrel,df,k0,PN,R0,Cext)
+use types; use const
+implicit none
+integer::iqcor,i,nstop,n
+real(kind=dp)::lmd,R0,Rg,x0,sp,xstop,df,k0,PN,k,xg,Cext,sumA,sumB
+complex(kind=dp),allocatable,dimension(:)::an,bn
+complex(kind=dp),allocatable,dimension(:,:)::dd
+complex(kind=dp)::refrel
+
+if(iqcor .ne. 1) then
+        print *, 'ERROR'
+        stop
+endif
+k       =  twopi/lmd                   ! wavenumber
+!k       =  twopi/0.1_dp                 ! wavenumber
+Rg      =  R0 * (PN/k0) ** (1.0_dp/df)  ! Radius of gyration of the aggregate
+xg      =  k * Rg                       ! size parameter of aggregates
+x0      =  k * R0                       ! size parameter of a monomer
+!refrel = cmplx(2.0_dp,1.0_dp,kind=dp)
+sp = (df/(16.0*xg*xg))&
+    *Gamma(0.5_dp*(df-2.0_dp))/Gamma(0.5_dp*df)
+xstop = x0 + 4.0_dp * x0 ** (1.0_dp/3.0_dp) + 2.0_dp
+nstop = nint(xstop)
+allocate(an(nstop),bn(nstop),dd(2,nstop))
+call lorenz_mie(x0,refrel,nstop,an,bn)
+
+! difflimit
+!an=0.5_dp
+!bn=0.5_dp
+
+sumA=0.0_dp
+sumB=0.0_dp
+do n=1,nstop
+        sumA = sumA + real(2*n+1,kind=dp)*an(n)
+        sumB = sumB + real(2*n+1,kind=dp)*bn(n)
+enddo
+do n=1,nstop
+        dd(1,n) = an(n)/(1.0_dp+(PN-1.0_dp)*Sp*sumA)
+        dd(2,n) = bn(n)/(1.0_dp+(PN-1.0_dp)*Sp*sumB)
+enddo
+Cext = 0.0_dp
+do n=1,nstop
+        Cext = Cext + real(2*n+1,kind=dp)*real(dd(1,n)+dd(2,n))
+enddo
+Cext  = Cext * twopi * PN / k / k
+deallocate(an,bn,dd)
+return
+end subroutine opticslimit
+
 
 !--------------------------------------------------------------------------------
 !

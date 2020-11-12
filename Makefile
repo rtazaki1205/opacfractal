@@ -1,10 +1,12 @@
 PROGRAM = fracsca
 EXEFNAME = $(PROGRAM).x
+#SRCS = call.f90 opacfractal.f90
 SRCS = call2.f90 opacfractal.f90
 OBJS = $(SRCS:.f90=.o) 
 
 debug  = true
 openmp = true
+
 FC = gfortran
 #FC = ifort
 
