@@ -202,9 +202,8 @@ real(kind=dp),parameter :: d2r    = pi/180.0_dp  ! degree to radian
 real(kind=dp),parameter :: r2d    = 1.0_dp/d2r   ! radian to degree
 integer      ,parameter :: jm     = 400          ! Number of grid points of Gauss-Ledengre
                                                  ! for integration of Gaunt coefficients.
-integer,parameter       :: nn     = 100000        ! Number of grid points in the numerical
-!integer,parameter       :: nn     = 100000        ! Number of grid points in the numerical
-                                                 ! integration for Sp(kRg)
+integer,parameter       :: nn     = 100000       ! Number of grid points in the numerical
+                                                 ! integration for Sp(kRg) 
 end module const
 
 !--------------------------------------------------------------------------------
