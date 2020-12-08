@@ -68,7 +68,6 @@
 !
 ! The geometric cross section of aggregates (to be used when iqsca=3):
 ! iqgeo = 2     : Okuzumi et al. 2009, ApJ, 707, 1247
-! iqgeo = 3     : Empirical formulae obtained by mean-field extinction
 !
 !--------------------------------------------------------------------------------
 !
@@ -115,7 +114,7 @@
 !                 iqcor = 2  : Exponential cutoff 
 !                 iqcor = 3  : Fractal dimension cutoff
 ! iqgeo         : Switch for the two-point correlation function 
-!                 iqgeo = 1  : pi * rc^2
+!                 iqgeo = 1  : pi * rc^2, rc is the characteristic radius
 !                 iqgeo = 2  : Okuzumi et al. (2009)
 !                 iqgeo = 3  : Empirical formulae from mean-field extinction
 ! iquiet        : Switch for standard output during a calculation
@@ -328,7 +327,7 @@ if (iqcor .ne. 1 .and. iqcor .ne. 2 .and. iqcor .ne. 3) then
         stop
 endif
 
-if (iqgeo .ne. 1 .and. iqgeo .ne. 2 .and. iqgeo .ne. 3) then
+if (iqgeo .ne. 1 .and. iqgeo .ne. 2) then
         print *, 'ERROR: Inappropriate iqgeo value.'
         print *, '       STOP.'
         stop
