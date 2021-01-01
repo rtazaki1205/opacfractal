@@ -73,7 +73,7 @@ I summarize some limitations of `opacfractal` for each light scattering solver (
 - `iqsca = 3`  
   The extinction cross section would be calculated without limitation. Scattering and absorption cross sections could be calculated for the phase shift > 1, however too large phase shift may cause some problem. The asymmetry parameter and the sattering matrix elements would be reliable for the phase shift <~ 1.  
 
-For safety, the code always outputs a value of the phase shift, and therefore, the user can check the value of the phase shift. The code also produces a warning when the phase shift is above unity. 
+For safety, the code always returns a value of the phase shift, and therefore, the user can check whether a set of inputted parameters is wthin the limitation or not. The code also produces a warning when the phase shift is above unity, although this warning is suppressed when `iquiet = 1`.
 
 # Acknowledgement 
 
