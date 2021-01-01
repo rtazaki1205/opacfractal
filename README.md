@@ -22,7 +22,7 @@ References for each specific option is as follows.
  - `iqcor = 3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
 
 
-# Examples 
+# How to use it? 
 
 The user must specify following input parameters in either `call.f90` or `call2.f90`:
 
