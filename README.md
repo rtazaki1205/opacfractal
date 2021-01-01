@@ -17,7 +17,9 @@ and redistributed freely. If you use this package to publish papers, please cite
 
 # How to use it? 
 
-The user must specify following input parameters in either `call.f90` or `call2.f90`:
+There are two examples of calling routines: `call.f90` and `call2.f90`, where the former produces an output file (`out_smat.dat`) containing scattering elements at a single wavelength and the latter produces an output file (`out_opc.dat`) containing wavelength dependent opacities. The user needs to edit `Makefile` to opt one of them. 
+
+In `call.f90` or `call2.f90`, the user can specify following input parameters:
 
 - `df` : Fractal dimension (1 ≦ df ≦ 3)
 - `k0` : Fractal prefactor
@@ -44,9 +46,10 @@ In addition, the user also needs to specify following four options:
   `iquiet=0` : show standard output  
   `iquiet=1` : suppress standard output (including warnings)  
 	
-I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default). For the two-point correlation function, now I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is also possible to reproduce optical properties of fractal aggregates. 
+I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default).  
+For the two-point correlation function, now I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is also possible to reproduce optical properties of fractal aggregates. 
 
-To run the code, first, you make the codes by
+To run the code, first, compile the codes by
 ```
 make
 ```
