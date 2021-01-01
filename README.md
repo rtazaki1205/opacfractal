@@ -39,7 +39,7 @@ In addition, the user also needs to specify following four options:
   `iqcor = 2` : The exponential cut-off model  
   `iqcor = 3` : The fractal dimension cut-off model  
 - Geometric cross section of fractal aggregates (needed only when `iqsca=3`)  
-  `iqgeo = 1` : The characteristic area   
+  `iqgeo = 1` : The characteristic cross sections  
   `iqgeo = 2` : Empirical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O)  
 - standard output  
   `iquiet = 0` : show standard output  
