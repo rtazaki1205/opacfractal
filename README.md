@@ -6,7 +6,7 @@ by means of a statistical distribution model of monomers.
 # Terms of use
 
 `opacfractal` is distributed under the [MITlicense](https://opensource.org/licenses/MIT) and can be used, changed
-and redistributed freely. If you use this package to publish papers, please cite the relevant papers:
+and redistributed freely. If you use this package to publish papers, please cite the relevant papers depending on code options (`iqsca` and `iqcor`):
 
  - `iqsca=1`: [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
  - `iqsca=2`: [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
