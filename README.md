@@ -55,7 +55,9 @@ As a result, the output file `out_smat.dat` or `out_opc.dat` is created.
 
 # Limitation of the code 
 
-Here, I summarize some limitations of the code for each approximation (`iqsca`). The limitation can be simply judged by the phase shift induced by an aggregate (Equation 9 in Tazaki & Tanaka 2018; see also Section 3.2 in this paper).
+`opacfractal` is an approximate technique to solve light scattering, and therefore, it is not applicable for all possible parameters. Beyond the limitation of the code, I suggest the users to use more rigorous numerical approach, such as [MSTM](https://www.eng.auburn.edu/~dmckwski/scatcodes/) and [DDSCAT](http://ddscat.wikidot.com/).
+
+I summarize some limitations of `opacfractal` for each light scattering solver (`iqsca`). The limitation can be simply judged by the phase shift induced by an aggregate (Equation 9 in Tazaki & Tanaka 2018; see also Section 3.2 in this paper).
 
 - `iqsca=1`   
   All outputs would be physically reasonable for the phase shift <~ 1.   
