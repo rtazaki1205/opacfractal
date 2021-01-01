@@ -28,7 +28,7 @@ The user must specify following input parameters in either `call.f90` or `call2.
 - `ref`: complex refractive index
 - `nang`: Number of angle mesh (=91) 
 
-In addition, the user also needs to specify following four options
+In addition, the user also needs to specify following four options:
 
 - Light scattering solver   
   `iqsca = 1` : Rayleigh-Gans-Debye theory  
@@ -51,7 +51,7 @@ To run the code, first, you make the codes by
 ```
 make
 ```
-This will create an executable file `results.x`. Then, perform
+This will create an executable file `fracsca.x`. Then, perform
 ```
 ./fracsca.x
 ```
