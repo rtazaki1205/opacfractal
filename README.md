@@ -8,9 +8,9 @@ by means of a statistical distribution model of monomers.
 `opacfractal` is distributed under the [MITlicense](https://opensource.org/licenses/MIT) and can be used, changed
 and redistributed freely. If you use this package to publish papers, please cite the relevant papers depending on code options (`iqsca` and `iqcor`):
 
- - `iqsca=1`: [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
- - `iqsca=2`: [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
- - `iqsca=3`: [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T/)
+ - `iqsca=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
+ - `iqsca=2` : [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
+ - `iqsca=3` : [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T/)
  - `iqcor=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
  - `iqcor=2` : [Berry & Percival 1986, AcOpt, 33, 577](https://ui.adsabs.harvard.edu/abs/1986AcOpt..33..577B)
  - `iqcor=3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
@@ -23,9 +23,9 @@ The user must specify following input parameters in either `call.f90` or `call2.
 - `k0` : Fractal prefactor
 - `PN` : Number of monomers (1 ≦ PN)
 - `R0` : Monomer radius (micron)
-- `lmd`: wavelength (micron)
-- `ref`: complex refractive index
-- `nang`: Number of angle mesh (=91) 
+- `lmd` : wavelength (micron)
+- `ref` : complex refractive index
+- `nang` : Number of angle mesh (=91) 
 
 In addition, the user also needs to specify following four options:
 
@@ -81,18 +81,18 @@ I thank the authors for the availability of the subroutines.
 
 A list of subroutines by other authors:  
 
-`lorenz_mie`  : Modified version of BHMIE code written by Bruce T. Draine  
-`renorm_mie`  : Modified version of BHMIE code written by Bruce T. Draine  
-`gamma`       : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
-`chgm`        : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
-`lpmns`       : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
-`lpn`         : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
-`ludcmp`      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"    
-`lubksb`      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"  
-`gauleg`      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"  
+`lorenz_mie` : Modified version of BHMIE code written by Bruce T. Draine  
+`renorm_mie` : Modified version of BHMIE code written by Bruce T. Draine  
+`gamma`      : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`chgm`       : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`lpmns`      : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`lpn`        : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`ludcmp`     : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"    
+`lubksb`     : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"  
+`gauleg`     : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"  
 
 
 # History
 
 *Version 3.0*
-- Initial release 
+- Public release 
