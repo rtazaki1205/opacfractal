@@ -14,7 +14,7 @@ and redistributed freely. If you use this package to publish papers, please cite
 
 # Examples 
 
-The user must specify following input parameters in `call.f90` or `call2.f90`
+The user must specify following input parameters in either `call.f90` or `call2.f90`:
 
 - `df` : Fractal dimension (1 ≦ df ≦ 3)
 - `k0` : Fractal prefactor
