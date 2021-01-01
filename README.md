@@ -45,7 +45,7 @@ I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default).
 
 To run the code, first, you make the codes by
 ```
-Make
+make
 ```
 This will create an executable file `results.x`. Then, perform
 ```
