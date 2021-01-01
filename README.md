@@ -8,13 +8,12 @@ by means of a statistical distribution model of monomers.
 `opacfractal` is distributed under the [MITlicense](https://opensource.org/licenses/MIT) and can be used, changed
 and redistributed freely. If you use this package to publish papers, please cite the relevant papers depending on code options (`iqsca` and `iqcor`):
 
- - `iqsca = 1`: [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
- - `iqsca = 2`: [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
- - `iqsca = 3`: [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T/)
- - `iqcor = 1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
- - `iqcor = 2` : [Berry & Percival 1986, AcOpt, 33, 577](https://ui.adsabs.harvard.edu/abs/1986AcOpt..33..577B)
- - `iqcor = 3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
-
+ - `iqsca=1`: [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
+ - `iqsca=2`: [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
+ - `iqsca=3`: [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T/)
+ - `iqcor=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
+ - `iqcor=2` : [Berry & Percival 1986, AcOpt, 33, 577](https://ui.adsabs.harvard.edu/abs/1986AcOpt..33..577B)
+ - `iqcor=3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
 
 # How to use it? 
 
@@ -31,19 +30,19 @@ The user must specify following input parameters in either `call.f90` or `call2.
 In addition, the user also needs to specify following four options:
 
 - Light scattering solver   
-  `iqsca = 1` : Rayleigh-Gans-Debye theory  
-  `iqsca = 2` : Mean field theory  
-  `iqsca = 3` : Modified mean field theory  
+  `iqsca=1` : Rayleigh-Gans-Debye theory  
+  `iqsca=2` : Mean field theory  
+  `iqsca=3` : Modified mean field theory  
 - The two-point correlation function of fractal aggregates  
-  `iqcor = 1` : The Gaussian cut-off model  
-  `iqcor = 2` : The exponential cut-off model  
-  `iqcor = 3` : The fractal dimension cut-off model  
+  `iqcor=1` : The Gaussian cut-off model  
+  `iqcor=2` : The exponential cut-off model  
+  `iqcor=3` : The fractal dimension cut-off model  
 - Geometric cross section of fractal aggregates (needed only when `iqsca=3`)  
-  `iqgeo = 1` : The characteristic cross sections  
-  `iqgeo = 2` : Empirical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O)  
+  `iqgeo=1` : The characteristic cross sections  
+  `iqgeo=2` : Empirical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O)  
 - standard output  
-  `iquiet = 0` : show standard output  
-  `iquiet = 1` : suppress standard output (including warnings)  
+  `iquiet=0` : show standard output  
+  `iquiet=1` : suppress standard output (including warnings)  
 	
 I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default). For the two-point correlation function, now I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is also possible to reproduce optical properties of fractal aggregates. 
 
@@ -63,14 +62,14 @@ As a result, the output file `out_smat.dat` or `out_opc.dat` is created.
 
 I summarize some limitations of `opacfractal` for each light scattering solver (`iqsca`). The limitation can be simply judged by the phase shift induced by an aggregate (Equation 9 in Tazaki & Tanaka 2018; see also Section 3.2 in this paper).
 
-- `iqsca = 1`   
+- `iqsca=1`   
   All outputs would be physically reasonable for the phase shift <~ 1.   
  
-- `iqsca = 2`  
+- `iqsca=2`  
  The extinction cross section would be calculated without limitation.  
  However, the other outputs would be reliable for the phase shift <~ 1.  
 
-- `iqsca = 3`  
+- `iqsca=3`  
   The extinction cross section would be calculated without limitation. Scattering and absorption cross sections could be calculated for the phase shift > 1, however too large phase shift may cause some problem. The asymmetry parameter and the sattering matrix elements would be reliable for the phase shift <~ 1.  
 
 For safety, the code always returns a value of the phase shift, and therefore, the user can check whether a set of inputted parameters is wthin the limitation or not. The code also produces a warning when the phase shift is above unity, although this warning is suppressed when `iquiet = 1`.
