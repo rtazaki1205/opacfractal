@@ -49,7 +49,7 @@ In addition, the user also needs to specify following four options:
 I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default).  
 For the two-point correlation function, now I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is also possible to reproduce optical properties of fractal aggregates. 
 
-To run the code, first, compile the codes by
+To run the code, first of all, compile the codes by
 ```
 make
 ```
