@@ -66,9 +66,9 @@ Here, I summarize some limitations of the code for each approximation (`iqsca`).
 - `iqsca=3`  
   The extinction cross section would be calculated without limitation. Scattering and absorption cross sections could be calculated for the phase shift > 1, however too large phase shift may cause some problem. The asymmetry parameter and the sattering matrix elements would be reliable for the phase shift < ~1.  
 
- For the two-point correlation function, I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is likely to reproduce optical properties of fractal aggregates.
+ For the two-point correlation function, I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is likely to reproduce optical properties of fractal aggregates. For safety, the code always outputs a value of the phase shift, and therefore, the user can check the value of the phase shift. The code also produces a warning when the phase shift is above unity. 
 
 # History
 
 *Version 3.0*
-- Initial release
+- Initial release 
