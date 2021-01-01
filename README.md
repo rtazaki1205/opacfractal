@@ -6,11 +6,21 @@ by means of a statistical distribution model of monomers.
 # Terms of use
 
 `opacfractal` is distributed under the [MITlicense](https://opensource.org/licenses/MIT) and can be used, changed
-and redistributed freely. If you use this package to publish papers, please cite the following paper
+and redistributed freely. If you use this package to publish papers, please cite the relevant papers
 
 > Ryo Tazaki and Hidekazu Tanaka  
 > *Light Scattering by Fractal Dust Aggregates. II. Opacity and Asymmetry parameter*  
 > The Astrophysical Journal, 860:79 (17pp), 2018
+
+References for each specific option is as follows.
+
+ - `iqsca=1`: [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
+ - `iqsca=2`: [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
+ - `iqsca=3`: [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T/)
+ - `iqcor = 1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
+ - `iqcor = 2` : [Berry & Percival 1986, AcOpt, 33, 577](https://ui.adsabs.harvard.edu/abs/1986AcOpt..33..577B)
+ - `iqcor = 3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
+
 
 # Examples 
 
@@ -36,7 +46,7 @@ In addition, the user also needs to specify following four options
   `iqcor=3` : The fractal dimension cut-off model  
 - Geometric cross section of fractal aggregates (needed only when `iqsca=3`)  
   `iqgeo=1` : The characteristic area   
-  `iqgeo=2` : Empitical formula by Okuzumi et al. (2009)  
+  `iqgeo=2` : Empitical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O)  
 - standard output  
   `iquiet=0` : show standard output  
   `iquiet=1` : suppress standard output (inclusing warnings)  
@@ -70,6 +80,24 @@ I summarize some limitations of `opacfractal` for each light scattering solver (
   The extinction cross section would be calculated without limitation. Scattering and absorption cross sections could be calculated for the phase shift > 1, however too large phase shift may cause some problem. The asymmetry parameter and the sattering matrix elements would be reliable for the phase shift <~ 1.  
 
  For the two-point correlation function, I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is likely to reproduce optical properties of fractal aggregates. For safety, the code always outputs a value of the phase shift, and therefore, the user can check the value of the phase shift. The code also produces a warning when the phase shift is above unity. 
+
+# Acknowledgement 
+
+`opacfractal` contains following subroutines provided by other authors.
+I thank the authors for the availability of the subroutines.  
+
+List of subroutines by other authors:  
+
+`lorenz_mie`  : Modified version of BHMIE code written by Bruce T. Draine  
+`renorm_mie`  : Modified version of BHMIE code written by Bruce T. Draine  
+`gamma`       : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`chgm`        : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`lpmns`       : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`lpn`         : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
+`ludcmp`      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"    
+`lubksb`      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"  
+`gauleg`      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"  
+
 
 # History
 
