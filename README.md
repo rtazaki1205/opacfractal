@@ -49,7 +49,7 @@ In addition, the user also needs to specify following four options
   `iqgeo=2` : Empitical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O)  
 - standard output  
   `iquiet=0` : show standard output  
-  `iquiet=1` : suppress standard output (inclusing warnings)  
+  `iquiet=1` : suppress standard output (including warnings)  
 	
 I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default).  
 
