@@ -24,22 +24,22 @@ The user must specify following input parameters in either `call.f90` or `call2.
 - `ref`: complex refractive index
 - `nang`: Number of angle mesh (=91) 
 
-In addition, the user also needs to specify following three options
+In addition, the user also needs to specify following four options
 
 - Light scattering solver   
   `iqsca=1` : Rayleigh-Gans-Debye theory  
-	`iqsca=2` : Mean field theory  
-	`iqsca=3` : Modified mean field theory  
+  `iqsca=2` : Mean field theory  
+  `iqsca=3` : Modified mean field theory  
 - The two-point correlation function of fractal aggregates  
   `iqcor=1` : The Gaussian cut-off model  
-	`iqcor=2` : The exponential cut-off model  
-	`iqcor=3` : The fractal dimension cut-off model  
-- Geometric cross section of fractal aggregates  
-	`iqgeo=1` : The characteristic area   
-	`iqgeo=2` : Empitical formula by Okuzumi et al. (2009)  
+  `iqcor=2` : The exponential cut-off model  
+  `iqcor=3` : The fractal dimension cut-off model  
+- Geometric cross section of fractal aggregates (needed only when `iqsca=3`)  
+  `iqgeo=1` : The characteristic area   
+  `iqgeo=2` : Empitical formula by Okuzumi et al. (2009)  
 - standard output  
-	`iquiet=0` : show standard output  
-	`iquiet=1` : suppress standard output (inclusing warnings)  
+  `iquiet=0` : show standard output  
+  `iquiet=1` : suppress standard output (inclusing warnings)  
 	
 I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default).  
 
