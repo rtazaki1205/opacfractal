@@ -80,7 +80,7 @@ I summarize some limitations of `opacfractal` for each light scattering solver (
 `opacfractal` contains following subroutines provided by other authors.
 I thank the authors for the availability of the subroutines.  
 
-List of subroutines by other authors:  
+A list of subroutines by other authors:  
 
 `lorenz_mie`  : Modified version of BHMIE code written by Bruce T. Draine  
 `renorm_mie`  : Modified version of BHMIE code written by Bruce T. Draine  
