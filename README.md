@@ -10,7 +10,7 @@ and redistributed freely. If you use this package to publish papers, please cite
 
  - `iqsca=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
  - `iqsca=2` : [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
- - `iqsca=3` : [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T/)
+ - `iqsca=3` : [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T)
  - `iqcor=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
  - `iqcor=2` : [Berry & Percival 1986, AcOpt, 33, 577](https://ui.adsabs.harvard.edu/abs/1986AcOpt..33..577B)
  - `iqcor=3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
@@ -74,6 +74,8 @@ I summarize some limitations of `opacfractal` for each light scattering solver (
 
 - `iqsca=3`  
   The extinction cross section would be calculated without limitation. Scattering and absorption cross sections could be calculated for the phase shift > 1, however too large phase shift may cause some problem. The asymmetry parameter and the sattering matrix elements would be reliable for the phase shift <~ 1.  
+
+The code also neglects the enhancement of absorption opacity due to the presence of adjacent monomers in an aggregate (see e.g., Section 5 in [Tazaki & Tanaka 2018](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T)). Therefore, the code underestimates the absorptin opacity in the Rayleigh domain particularly when monomers have high refractive index, such as amorphous carbon.
 
 For safety, the code always returns a value of the phase shift, and therefore, the user can check whether a set of inputted parameters is wthin the limitation or not. The code also produces a warning when the phase shift is above unity, although this warning is suppressed when `iquiet = 1`.
 
