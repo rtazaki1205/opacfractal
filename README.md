@@ -19,14 +19,14 @@ and redistributed freely. If you use this package to publish papers, please cite
 
 There are two examples of calling routines: `call.f90` and `call2.f90`, where the former produces an output file (`out_smat.dat`) containing scattering elements at a single wavelength and the latter produces an output file (`out_opc.dat`) containing wavelength dependent opacities. The user needs to edit `Makefile` to opt one of them. 
 
-In `call.f90` or `call2.f90`, the user can specify following input parameters:
+In `call.f90` or `call2.f90`, the user needs specify following input parameters:
 
 - `df` : Fractal dimension (1 ≦ df ≦ 3)
 - `k0` : Fractal prefactor
 - `PN` : Number of monomers (1 ≦ PN)
 - `R0` : Monomer radius (micron)
-- `lmd` : wavelength (micron)
-- `ref` : complex refractive index
+- `lmd` : Wavelength (micron)
+- `ref` : Complex refractive index
 - `nang` : Number of angle mesh (=91) 
 
 In addition, the user also needs to specify following four options:
