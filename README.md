@@ -77,7 +77,7 @@ I summarize some limitations of `opacfractal` for each light scattering solver (
 
 The code also neglects the enhancement of absorption opacity due to the presence of adjacent monomers in an aggregate (see e.g., Section 5 in [Tazaki & Tanaka 2018](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T)). Therefore, the code underestimates the absorptin opacity in the Rayleigh domain particularly when monomers have high refractive index, such as amorphous carbon.
 
-For safety, the code always returns a value of the phase shift, and therefore, the user can check whether a set of inputted parameters is wthin the limitation or not. The code also produces a warning when the phase shift is above unity, although this warning is suppressed when `iquiet = 1`.
+For safety, the code always returns a value of the phase shift, and therefore, the user can check whether a set of inputted parameters is within the limitation or not. The code also produces a warning when the phase shift is above unity, although this warning is suppressed when `iquiet = 1`.
 
 # Acknowledgement 
 
