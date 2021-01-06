@@ -2,12 +2,13 @@
 
 This package allows to compute optical properties of fractal dust aggregates 
 by means of a statistical distribution model of monomers.
+This code has been tested by comparing T-Matrix Method in [Tazaki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T) for scattering matrix elements and [Tazaki and Tanala 2018](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T) for the opacity and asymmetry parameter.
 
 # Terms of use
 
 `opacfractal` is distributed under the [MITlicense](https://opensource.org/licenses/MIT) and can be used, changed
-and redistributed freely. If you use this package to publish papers, please cite the relevant papers depending on code options (`iqsca` and `iqcor`):
-
+and redistributed freely. If you use this package to publish papers, please cite the relevant papers.
+Because this code includes some formulations by previous authors and can be called by the code options (`iqsca`, `iqcor`, and `iqgeo`). Depending on each code option, the relevant paper is as follows.
  - `iqsca=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
  - `iqsca=2` : [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
  - `iqsca=3` : [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T)
