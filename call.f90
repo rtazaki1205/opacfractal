@@ -20,7 +20,7 @@ real(kind=dp),allocatable,dimension(:,:):: Smat
 !--------------------------------------------------------------------------------
 iqsca  = 3                               ! a method to solve light scattering
 iqcor  = 1                               ! correlation function
-iqgeo  = 2                               ! geometric cross section
+iqgeo  = 3                               ! geometric cross section
 iquiet = 0                               ! stdout
 R0     = 0.5_dp                          ! Monomer radius (micron)
 PN     = 64.0_dp                         ! Number of monomers

@@ -20,7 +20,7 @@ real(kind=dp)                           :: wlmin,wlmax,dwl
 real(kind=dp),allocatable,dimension(:,:):: Smat
 integer                                 :: iwl
 integer,parameter                       :: nwl=100
-integer,parameter                       :: ndf=16
+integer,parameter                       :: ndf=7
 real(kind=dp),dimension(1:ndf)          :: DF,k0
 real(kind=dp),dimension(1:nwl)          :: wl,re,im
 real(kind=dp),dimension(1:ndf,0:5,1:nwl):: CS
@@ -30,7 +30,7 @@ real(kind=dp)::Gratio,tmp
 !--------------------------------------------------------------------------------
 iqsca  = 3                               ! A method to solve light scattering
 iqcor  = 1                               ! correlation function
-iqgeo  = 2                               ! geometric cross section
+iqgeo  = 3                               ! geometric cross section
 iquiet = 1                               ! stdout
 R0     = 1.e-1_dp                        ! Monomer radius (micron)
 Rv     = 3.e1_dp                         ! Volume equivalent radius (micron)
@@ -39,11 +39,11 @@ nang   = 90*100+1                        ! Angle mesh
 !--------------------------------------------------------------------------------
 ! AGGREGATE STRUCTURE MODEL 
 !--------------------------------------------------------------------------------
-df_min = 1.5_dp
+df_min = 1.8_dp
 df_max = 3.0_dp
 do j=1,ndf
         DF(j) = df_min + real(j-1,kind=dp)*(df_max-df_min)/real(ndf-1,kind=dp)
-        k0(j) = (k0_bpca-k0_bcca)/(df_bpca-df_bcca)*(Df(j)-df_bpca)+k0_bpca
+        k0(j) = 0.716_dp * (1.0_dp - DF(j)) + sqrt(3.0_dp)
 enddo
 !--------------------------------------------------------------------------------
 ! Wavelength mesh
@@ -80,6 +80,7 @@ do j=1,ndf
         !$OMP end parallel do
 enddo
 deallocate(Smat)
+
 !--------------------------------------------------------------------------------
 ! OUTPUT 
 !--------------------------------------------------------------------------------

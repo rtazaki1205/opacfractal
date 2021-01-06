@@ -171,19 +171,16 @@
 ! version 3.0 (Nov. 05, 2020) 
 ! - BUG fixed: Add a simple prescription for negative S(q) for iqcor=3.
 ! - Fixed a code crush for OpenMP mode.
-! - Fixed some over/underflow signals.
-! - Fixed a type mismatch of "d" for the subroutine 'ludcmp'.
-! - Fixed a type mismatch of cn1, cn2 in the main subroutine.
+! - Fixed a few type mismatchs and over/underflow signals.
 ! - Unified notation for Cabs in iqsca=1 for safety.
 ! - Updated f77 subroutines to f90.
 ! - Implemented parameterized real precision
 ! - Implemented more efficient loop structure at calculations of 
 !   gaunt coefficients : a(nu,n,p) and b(nu,n,p).
 ! - Removed the iqcor=4 option because it is practically unimportant.
-! - Implemented Okuzumi et al. (2009) formula for geometrical cross-section.
 ! - Added a return variable "phase shift"
-! - Added a new switch for geometric cross section
-!
+! - Added models of for geometric cross sections (iqgeo option)
+! 
 !--------------------------------------------------------------------------------
 !       Some constants
 !--------------------------------------------------------------------------------
@@ -261,6 +258,7 @@ real(kind=dp)           :: xi                 ! used in xi (Berry corr)
 integer::nstop,numax,nmax
 integer::nu,n,p,j,pmin,pmax
 integer::degmax,order
+integer::iqapp,iqcon                          ! call geofractal
 real(kind=dp),allocatable,dimension(:)::x,w
 real(kind=dp)::x1,x2,anunp,bnunp
 real(kind=dp)::dang,S11,S12,S33,S34
@@ -326,7 +324,7 @@ if (iqcor .ne. 1 .and. iqcor .ne. 2 .and. iqcor .ne. 3) then
         stop
 endif
 
-if (iqgeo .ne. 1 .and. iqgeo .ne. 2) then
+if (iqgeo .ne. 1 .and. iqgeo .ne. 2 .and. iqgeo .ne. 3) then
         print *, 'ERROR: Inappropriate iqgeo value.'
         print *, '       STOP.'
         stop
@@ -494,7 +492,7 @@ elseif(iqsca .ge. 2) then
                  Sp(p) = (df/(16.0*xg*xg))&
                     *Gamma(0.5_dp*(df-2.0_dp))/Gamma(0.5_dp*df)
                else
-                        call integration_of_Sp(iqcor,df,p,xg,Sp_tmp)
+                        call integration_of_Sp(iqcor,iqgeo,df,p,xg,Sp_tmp)
                         Sp(p) = Sp_tmp
                endif
         enddo
@@ -808,7 +806,9 @@ elseif(iqsca .eq. 3) then
         elseif(iqgeo .eq. 2) then
                 call geocross(PN,R0,RC,GC)
         elseif(iqgeo .eq. 3) then
-                call geocross_mft(PN,df,GC)
+                iqapp=3 ! use approximate solution
+                iqcon=1 ! without small-cluster limit.
+                call geofrac(iqapp,iqcon,iqcor,PN,k0,df,GC)
                 GC = GC * PN * pi * R0 * R0
         endif
         !
@@ -1451,23 +1451,14 @@ end subroutine complex_leqs_solver
 !               u_max ~ xg * sqrt( 2.0 * eta1 ) ** (1.0/d_f)
 !  I adopt eta1 = 25.0.
 !
-!  u_min is chosen so that 2x_0, which corresponds to the assumption
-!  that the minimum length of two-point correlation function is 
-!  truncated at the monomer dimeter.
+!  u_min is chosen so that (u_min/xg)^{d_f} ~ exp[-eta2], thus,
 !
-!  * In the original formulation by Botet et al. 1997 (and Tazaki & Tanaka 2018),
-!    we used umin=0. However, since opacfractal version 3.0, I adopt umin=2x_0 
-!    to make formulation consistent with that of geometric cross sections (iqgeo=3).
-!    The new definition may lead different results from those of the previous version
-!    when df < 2 and phase shift >~ 1.
+!               umin ~ xg * exp(-eta2/d_f)
 !
-!    It is also important to keep in mind that in the calculation of the 
-!    static structure factor Sq, I keep using the minimum distance of the 
-!    correlation function = 0, rather than the monomer diameter. This is because
-!    the integration of Sq is insensitive to its lower bound value.
+!  where eta2 = 40.0.
 !
 !--------------------------------------------------------------------------------
-subroutine integration_of_Sp(iqcor,D,p,xg,Sp)
+subroutine integration_of_Sp(iqcor,iqgeo,D,p,xg,Sp)
 use types; use const
 !integer,parameter      :: nn =  10000                    !  integration grid.
 !--------------------------------------------------------------------------------
@@ -1495,8 +1486,8 @@ real(kind=dp),parameter:: b4 =  3.72312019844119
 !--------------------------------------------------------------------------------
 real(kind=dp),parameter:: floorvalue=1.0e-30_dp
 real(kind=dp),parameter:: eta1 = 25.0_dp
-!real(kind=dp),parameter:: eta2 = 40.0_dp       ! dismissed since ver 3.0
-integer                :: n,p,iqcor,isol
+real(kind=dp),parameter:: eta2 = 40.0_dp       ! dismissed since ver 3.0
+integer                :: n,p,iqcor,iqgeo,isol
 real(kind=dp)::umin,umax,du,xg,D,fc
 real(kind=dp)::lnxa,lnxb,jp,yp,unitary,error
 real(kind=dp),allocatable,dimension(:)::u
@@ -1515,28 +1506,7 @@ elseif(iqcor .eq. 3) then
         umax = xg * (2.0_dp*eta1)**(1.0_dp/D)
 endif
 
-!--------------------------------------------------------------------------------
-!
-! Comments ( 2021/Jan/5th )
-! 
-! In the previous version (opacfractal ver 2), the value of umin was set as
-!       umin = xg * exp(-eta2/D).
-! In fact, this gives the results consistent with the formulation presented in 
-! Botet et al. (1997) and also Tazaki & Tanaka (2018).
-!
-! However, since opacfractal version 3.0, I adopt slightly different
-! formulation, where the closest distance between two monomers is 
-! truncated a lenngth of the monomer diameter when we calculate sp(kRg). 
-! This is thought to be more physically reasonable.  In addition, this way of 
-! formulation is necessary to compute geometric cross sections of fractal aggregates.
-!
-       umin = 2.0_dp * x0
-!  
-! The different choice of umin only affects the results when fractal dimension df<2
-! and when the phase shift is close to or larger than 1.0.
-!
-!--------------------------------------------------------------------------------
-
+umin = xg * exp(-eta2/D)
 du   = (umax/umin) ** (1.0_dp/real(nn-1,kind=dp))
 
 allocate(u(1:nn),intg(1:nn),intg_unit(1:nn))
@@ -1616,9 +1586,13 @@ endif
 if(abs(aimag(Sp)) .lt. floorvalue) then
         Sp = cmplx(real(Sp),-floorvalue)
 endif
-!
 
-if(error .ge. 1.0e-3_dp) then
+
+!
+! If geofractal formulation is used (iqgeo=3), the variable 'unitary' 
+! does not necessary to have a value of 1.0.
+! Thus, this convergence check is performed when iqgeo=1 or 2.
+if(iqgeo .ne. 3 .and. error .ge. 1.0e-3_dp) then
         write(*,*) "--------------------------------------------------------"
         write(*,*) "Check unitary condition : the two-points correlation function"
         write(*,*) "Numerical integration of g(u) with error of ",error*1.d2," (%)"
@@ -1770,8 +1744,6 @@ integer::M,n,i,isol
 integer,parameter        :: imax = 100    ! Truncation order of series expansion
 integer,parameter        :: nwarmup = 100 ! Warming-up 
 real(kind=dp),parameter  :: eps=1.0e-30_dp
-!real(kind=dp),parameter  :: floorvalue=1.0e-140_dp
-!real(kind=dp),parameter  :: ceilingvalue=1.0e140_dp
 real(kind=dp),parameter  :: floorvalue=1.0e-70_dp
 real(kind=dp),parameter  :: ceilingvalue=1.0e70_dp
 real(kind=dp)            :: K0,K1,x,s,Y0,Y1
@@ -1860,10 +1832,11 @@ end subroutine sphbessel
 subroutine spout(iqcor,df)
 use types; use const
 implicit none
-integer          :: iqcor,p,imax,i
+integer          :: iqcor,iqgeo,p,imax,i
 real(kind=dp)    :: df,k,xg,xmin,xmax,dx
 real(kind=dp)    :: ImS0_xlt1,ImS0_xgt1,ReSp
 complex(kind=dp) :: sp
+iqgeo = 2
 k    = 1.0_dp
 xmin = 1.0e-8_dp
 xmax = 1.0e8_dp
@@ -1876,7 +1849,7 @@ do p=0,20
         write(*,*) "p = ",p
         do i=1,imax
         xg = xmin * dx ** real(i-1,kind=dp)
-        call integration_of_Sp(iqcor,df,p,xg,Sp)
+        call integration_of_Sp(iqcor,iqgeo,df,p,xg,Sp)
         ! asymptotic solution for Im(S_p) with p=0.
         ImS0_xlt1 = -sqrt(2.0_dp*pi)/4.0_dp/xg
         ImS0_xgt1 = -pi/8.0_dp/xg/xg
@@ -2278,81 +2251,6 @@ GC = min(GC,PN*pi*a0*a0)
 return
 end subroutine geocross
 
-!--------------------------------------------------------------------------------
-!
-! UNDER CONSTRUCTION. 
-!
-!--------------------------------------------------------------------------------
-! Fitting formulae of geometrical cross section derived from 
-! the mean-field extinction cross section at short-wavelength limit.
-!
-! CAUTION:
-! The fractal prefactor is assumed to have a value obtained by
-! linear interpolation (or extrapolation) of those values of 
-! BCCA and BPCA.
-!
-!--------------------------------------------------------------------------------
-subroutine geocross_mft(PN,df,Gratio)
-use types
-implicit none
-integer::i
-integer,parameter::ndim=15
-real(kind=dp),dimension(0:ndim)::a,b,c,d,e,f,g,h,fdim
-real(kind=dp)                ::aa,bb,cc,dd,ee,ff,gg,hh
-real(kind=dp)                ::PN,df,Gratio
-DATA (fdim(i),i=0,15) / 1.50000E+00,    1.60000E+00,    1.70000E+00,    1.80000E+00,&
-                        1.90000E+00,    2.00000E+00,    2.10000E+00,    2.20000E+00,&
-                        2.30000E+00,    2.40000E+00,    2.50000E+00,    2.60000E+00,&
-                        2.70000E+00,    2.80000E+00,    2.90000E+00,    3.00000E+00 /
-DATA (a(i),i=0,15) /    7.13973E+02,    1.16423E+03,    3.33395E+02,    3.56949E+02,&
-                        2.74600E+00,    3.04834E+02,    3.22197E+02,    4.03725E+02,&
-                        4.39512E+02,    4.26389E+02,    4.53031E+02,    4.52352E+02,&
-                        4.43447E+02,    4.35774E+02,    4.40590E+02,    4.50909E+02 /
-DATA (b(i),i=0,15) /   -1.08072E-01,   -1.05630E-01,   -1.15695E-01,   -1.24080E-01,&
-                       -2.52337E-03,   -8.12464E-02,   -3.39455E-02,    7.18452E-02,&
-                        6.30843E-02,   -1.98444E-02,   -1.24053E-01,   -1.74670E-01,&
-                       -1.95718E-01,   -2.04959E-01,   -2.07496E-01,   -2.04854E-01 /
-DATA (c(i),i=0,15) /    6.96352E+00,    7.44311E+00,    6.16310E+00,    6.16324E+00,&
-                        1.18113E+00,    5.90229E+00,    5.93429E+00,    6.13033E+00,&
-                        6.21396E+00,    6.37749E+00,    6.34347E+00,    6.30390E+00,&
-                        6.25537E+00,    6.21575E+00,    6.20834E+00,    6.21497E+00 /
-DATA (d(i),i=0,15) /    2.89145E-02,    2.28560E-02,    2.83661E-02,    3.18105E-02,&
-                        9.26620E-02,    2.80617E-02,    1.93156E-02,    2.41211E-05,&
-                       -9.34488E-05,   -8.23762E-05,    1.91956E-02,    2.93221E-02,&
-                        3.44086E-02,    3.71157E-02,    3.81358E-02,    3.78502E-02 /
-DATA (e(i),i=0,15) /    1.52260E+00,    1.29338E+00,    1.10944E+00,    9.16614E-01,&
-                        6.77090E-01,    6.26109E-01,    5.38993E-01,    4.52138E-01,&
-                        3.94309E-01,    6.19632E-01,    4.83615E-01,    4.00043E-01,&
-                        3.32825E-01,    2.78355E-01,    2.32785E-01,    1.93256E-01 /
-DATA (f(i),i=0,15) /   -5.05108E-02,   -1.51396E-02,    9.11257E-03,    2.25686E-02,&
-                        1.34713E-02,    5.34920E-02,    7.53823E-02,    1.08882E-01,&
-                        1.53220E-01,    1.65246E-01,    1.98459E-01,    2.27960E-01,&
-                        2.55767E-01,    2.81834E-01,    3.06280E-01,    3.29231E-01 /
-DATA (g(i),i=0,15) /    1.55847E+00,    1.41197E+00,    1.32293E+00,    1.31261E+00,&
-                        1.46648E+00,    1.32681E+00,    1.30102E+00,    1.31291E+00,&
-                        1.19121E+00,    8.13122E-01,    8.65730E-01,    8.40165E-01,&
-                        8.05872E-01,    7.64332E-01,    7.18741E-01,    6.72135E-01 /
-DATA (h(i),i=0,15) /    8.90935E-01,    8.75141E-01,    8.65479E-01,    8.80248E-01,&
-                        9.46148E-01,    9.44240E-01,    9.74293E-01,    1.04852E+00,&
-                        1.11467E+00,    8.78236E-01,    9.61048E-01,    1.00913E+00,&
-                        1.05517E+00,    1.10051E+00,    1.14855E+00,    1.20307E+00 /
-do i=0,ndim-1
-      if(fdim(i) .le. df .and. fdim(i+1) .ge. df) then
-              aa = (a(i+1)-a(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+a(i)
-              bb = (b(i+1)-b(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+b(i)
-              cc = (c(i+1)-c(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+c(i)
-              dd = (d(i+1)-d(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+d(i)
-              ee = (e(i+1)-e(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+e(i)
-              ff = (f(i+1)-f(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+f(i)
-              gg = (g(i+1)-g(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+g(i)
-              hh = (h(i+1)-h(i))/(fdim(i+1)-fdim(i))*(df-fdim(i))+h(i)
-              exit
-      endif
-enddo
-Gratio  = aa*PN**bb*exp(-cc/PN**dd)+ee*PN**ff*exp(-gg/PN**hh)
-Gratio  = 1.0_dp / Gratio
-return
-end subroutine geocross_mft
 
 subroutine opticslimit(iqcor,lmd,refrel,df,k0,PN,R0,Cext)
 use types; use const
@@ -2568,3 +2466,4 @@ w(n+1-i)=w(i)
 enddo
 return
 END SUBROUTINE gauleg
+

@@ -14,6 +14,8 @@ and redistributed freely. If you use this package to publish papers, please cite
  - `iqcor=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
  - `iqcor=2` : [Berry & Percival 1986, AcOpt, 33, 577](https://ui.adsabs.harvard.edu/abs/1986AcOpt..33..577B)
  - `iqcor=3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
+ - `iqgeo=2` : [Okuzumi et al. 2009, ApJ, 707, 1247](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O) 
+ - `iqgeo=3` : [Tazaki (in prep.)](https://github.com/rtazaki1205/geofractal)
 
 # How to use it? 
 
@@ -41,12 +43,13 @@ In addition, the user also needs to specify following four options:
   `iqcor=3` : The fractal dimension cut-off model  
 - Geometric cross section of fractal aggregates (needed only when `iqsca=3`)  
   `iqgeo=1` : The characteristic cross sections  
-  `iqgeo=2` : Empirical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O)  
+  `iqgeo=2` : Empirical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O) 
+  `iqgeo=3` : Analytical formula of fractal cross sections by Tazaki (in prep.) from [geofractal code](https://github.com/rtazaki1205/geofractal)
 - standard output  
   `iquiet=0` : show standard output  
   `iquiet=1` : suppress standard output (including warnings)  
 	
-I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=2` (default).  
+I recommend following set of options: `iqsca=3`,`iqcor=1`,`iqgeo=3` (default).  
 For the two-point correlation function, now I suggest to use `iqcor=1` (Gaussian type) because it is numerically stable and is also possible to reproduce optical properties of fractal aggregates. 
 
 To run the code, first of all, compile the codes by
