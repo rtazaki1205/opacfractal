@@ -168,7 +168,7 @@
 !   Lorentz-Mie routine. This does not change the results, since both of 
 !   them are not used to obtain final results.
 ! 
-! version 3.0 (Nov. 05, 2020) 
+! version 3.0 (Jan. 05, 2020) 
 ! - BUG fixed: Add a simple prescription for negative S(q) for iqcor=3.
 ! - Fixed a code crush for OpenMP mode.
 ! - Fixed a few type mismatchs and over/underflow signals.
@@ -180,7 +180,8 @@
 ! - Removed the iqcor=4 option because it is practically unimportant.
 ! - Added a return variable "phase shift"
 ! - Added models of for geometric cross sections (iqgeo option)
-! 
+! - Implemented geofractal code
+!
 !--------------------------------------------------------------------------------
 !       Some constants
 !--------------------------------------------------------------------------------
@@ -611,7 +612,6 @@ do n=1,nstop
   write(*,fmt='(I3,1P4E15.5)') n,real(dd(1,n)),aimag(dd(1,n)),real(dd(2,n)),aimag(dd(2,n))
 enddo
 if(debug) then
-!write(*,fmt='(1P2E15.5)') wa1/real(nstop,kind=dp),wa2/real(nstop,kind=dp)
 write(*,fmt='(1P2E15.5)') real(wa1)/real(nstop,kind=dp),aimag(wa1)/real(nstop,kind=dp),&
            &        real(wa2)/real(nstop,kind=dp),aimag(wa2)/real(nstop,kind=dp)
 endif
@@ -974,7 +974,6 @@ integer                           :: n,nmx,en
 real(kind=dp)                     :: xstop,ymod,enr,nr
 real(kind=dp)                     :: psi0,psi1,psi,chi0,chi1,chi
 complex(kind=dp)                  :: xi1,xi,y
-!complex(kind=dp),dimension(nmxx)  :: d
 complex(kind=dp),allocatable,dimension(:)  :: d
 complex(kind=dp),dimension(nstop) :: a,b
 
@@ -1460,7 +1459,6 @@ end subroutine complex_leqs_solver
 !--------------------------------------------------------------------------------
 subroutine integration_of_Sp(iqcor,iqgeo,D,p,xg,Sp)
 use types; use const
-!integer,parameter      :: nn =  10000                    !  integration grid.
 !--------------------------------------------------------------------------------
 ! Old boundary given by Jablonski et al. 1994 : !!! NOT FAVORED !!!
 !--------------------------------------------------------------------------------
