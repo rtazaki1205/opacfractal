@@ -1449,12 +1449,22 @@ end subroutine complex_leqs_solver
 !               u_max ~ xg * eta1 * sqrt(2.0 /(d_f*(d_f+1))
 !       For iqcor=1 (FLDIM)
 !               u_max ~ xg * sqrt( 2.0 * eta1 ) ** (1.0/d_f)
+!  I adopt eta1 = 25.0.
 !
-!  u_min is chosen so that (u_min/xg)^{d_f} ~ exp[-eta2], thus, 
+!  u_min is chosen so that 2x_0, which corresponds to the assumption
+!  that the minimum length of two-point correlation function is 
+!  truncated at the monomer dimeter.
 !
-!               umin ~ xg * exp(-eta2/d_f)
+!  * In the original formulation by Botet et al. 1997 (and Tazaki & Tanaka 2018),
+!    we used umin=0. However, since opacfractal version 3.0, I adopt umin=2x_0 
+!    to make formulation consistent with that of geometric cross sections (iqgeo=3).
+!    The new definition may lead different results from those of the previous version
+!    when df < 2 and phase shift >~ 1.
 !
-!  I adopt eta1 = 25.0, and eta2 = 40.0, respectively.
+!    It is also important to keep in mind that in the calculation of the 
+!    static structure factor Sq, I keep using the minimum distance of the 
+!    correlation function = 0, rather than the monomer diameter. This is because
+!    the integration of Sq is insensitive to its lower bound value.
 !
 !--------------------------------------------------------------------------------
 subroutine integration_of_Sp(iqcor,D,p,xg,Sp)
@@ -1485,7 +1495,7 @@ real(kind=dp),parameter:: b4 =  3.72312019844119
 !--------------------------------------------------------------------------------
 real(kind=dp),parameter:: floorvalue=1.0e-30_dp
 real(kind=dp),parameter:: eta1 = 25.0_dp
-real(kind=dp),parameter:: eta2 = 40.0_dp
+!real(kind=dp),parameter:: eta2 = 40.0_dp       ! dismissed since ver 3.0
 integer                :: n,p,iqcor,isol
 real(kind=dp)::umin,umax,du,xg,D,fc
 real(kind=dp)::lnxa,lnxb,jp,yp,unitary,error
@@ -1504,10 +1514,30 @@ elseif(iqcor .eq. 2) then
 elseif(iqcor .eq. 3) then
         umax = xg * (2.0_dp*eta1)**(1.0_dp/D)
 endif
-umin = xg * exp(-eta2/D)
+
+!--------------------------------------------------------------------------------
+!
+! Comments ( 2021/Jan/5th )
+! 
+! In the previous version (opacfractal ver 2), the value of umin was set as
+!       umin = xg * exp(-eta2/D).
+! In fact, this gives the results consistent with the formulation presented in 
+! Botet et al. (1997) and also Tazaki & Tanaka (2018).
+!
+! However, since opacfractal version 3.0, I adopt slightly different
+! formulation, where the closest distance between two monomers is 
+! truncated a lenngth of the monomer diameter when we calculate sp(kRg). 
+! This is thought to be more physically reasonable.  In addition, this way of 
+! formulation is necessary to compute geometric cross sections of fractal aggregates.
+!
+       umin = 2.0_dp * x0
+!  
+! The different choice of umin only affects the results when fractal dimension df<2
+! and when the phase shift is close to or larger than 1.0.
+!
+!--------------------------------------------------------------------------------
+
 du   = (umax/umin) ** (1.0_dp/real(nn-1,kind=dp))
-
-
 
 allocate(u(1:nn),intg(1:nn),intg_unit(1:nn))
 do n=1,nn
