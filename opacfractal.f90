@@ -68,6 +68,7 @@
 !
 ! The geometric cross section of aggregates (to be used when iqsca=3):
 ! iqgeo = 2     : Okuzumi et al. 2009, ApJ, 707, 1247
+! iqgeo = 3     : Tazaki (submitted)
 !
 !--------------------------------------------------------------------------------
 !
@@ -116,7 +117,7 @@
 ! iqgeo         : Switch for the two-point correlation function 
 !                 iqgeo = 1  : pi * rc^2, rc is the characteristic radius
 !                 iqgeo = 2  : Okuzumi et al. (2009)
-!                 iqgeo = 3  : Empirical formulae from mean-field extinction
+!                 iqgeo = 3  : Tazaki (submitted)
 ! iquiet        : Switch for standard output during a calculation
 !                 iquiet = 0 : show stdout 
 !                 iquiet = 1 : suppress stdout (including warnings)
