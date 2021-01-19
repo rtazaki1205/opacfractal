@@ -88,6 +88,7 @@
 ! ludcmp      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"
 ! lubksb      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"
 ! gauleg      : Press, W. H. et al. (1997), "Numerical Recipes in Fortran 77"
+! geofrac     : Tazaki (submitted to MNRAS)
 !
 !--------------------------------------------------------------------------------
 !
@@ -169,7 +170,7 @@
 !   Lorentz-Mie routine. This does not change the results, since both of 
 !   them are not used to obtain final results.
 ! 
-! version 3.0 (Jan. 05, 2020) 
+! version 3.0 (Jan. 19, 2020) 
 ! - BUG fixed: Add a simple prescription for negative S(q) for iqcor=3.
 ! - Fixed a code crush for OpenMP mode.
 ! - Fixed a few type mismatchs and over/underflow signals.
@@ -181,7 +182,7 @@
 ! - Removed the iqcor=4 option because it is practically unimportant.
 ! - Added a return variable "phase shift"
 ! - Added models of for geometric cross sections (iqgeo option)
-! - Implemented geofractal code
+! - Implemented geofractal code (called by iqgeo=3)
 !
 !--------------------------------------------------------------------------------
 !       Some constants
