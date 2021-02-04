@@ -7,7 +7,7 @@ SRCS = opacfractal.f90 geofractal.f90 call.f90
 # 2. multiple wavelengths
 #SRCS = opacfractal.f90 geofractal.f90 call2.f90
 
-# 3. multiple wavelengths + grain size distribution
+# 3. multiple wavelengths + grain size distribution + RADMC output
 #SRCS = opacfractal.f90 geofractal.f90 call3.f90
 
 OBJS = $(SRCS:.f90=.o) 
