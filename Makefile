@@ -2,13 +2,13 @@ PROGRAM = fracsca
 EXEFNAME = $(PROGRAM).x
 
 # 1. siingle wavelength
-#SRCS = opacfractal.f90 geofractal.f90 call.f90
+SRCS = opacfractal.f90 geofractal.f90 call.f90
 
 # 2. multiple wavelengths
 #SRCS = opacfractal.f90 geofractal.f90 call2.f90
 
 # 3. multiple wavelengths + grain size distribution
-SRCS = opacfractal.f90 geofractal.f90 call3.f90
+#SRCS = opacfractal.f90 geofractal.f90 call3.f90
 
 OBJS = $(SRCS:.f90=.o) 
 
