@@ -1,10 +1,10 @@
 # Introduction to opacfractal
 
-This package allows to compute optical properties of fractal dust aggregates 
+This `opacfractal` package allows to compute optical properties of fractal dust aggregates 
 by means of a statistical distribution model of monomers.
 This code has been tested by comparing the results obtained by the T-Matrix Method in [Tazaki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T) for scattering matrix elements and [Tazaki and Tanala 2018](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T) for the opacity and asymmetry parameter.
 
-If you want to obtain optical properties averaged over aggregate size distribution, a commad-line opacity tool [optool](https://github.com/cdominik/optool.git) is useful.
+`opacfractal` has been also implemented in a commad-line opacity tool [optool](https://github.com/cdominik/optool.git).
 
 # Terms of use
 
