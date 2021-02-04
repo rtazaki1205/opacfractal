@@ -1,7 +1,7 @@
 PROGRAM = fracsca
 EXEFNAME = $(PROGRAM).x
 
-# 1. siingle wavelength
+# 1. single wavelength
 SRCS = opacfractal.f90 geofractal.f90 call.f90
 
 # 2. multiple wavelengths
