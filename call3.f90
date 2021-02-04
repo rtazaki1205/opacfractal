@@ -24,9 +24,9 @@ complex(kind=dp)::refrel
 !--------------------------------------------------------------------------------
 k0     = 1.04_dp            ! fractal pre-factor
 df     = 1.90_dp            ! fractal dimension
-r0     = 0.01_dp * mic2cm   ! monomer radius                        [cm]
-rmin   = 0.10_dp * mic2cm   ! minimum volume-equivalent radius      [cm]
-rmax   = 3.00_dp * mic2cm   ! maximum volume-equivalent radius      [cm]
+r0     = 0.1_dp * mic2cm    ! monomer radius                        [cm]
+rmin   = 0.3_dp * mic2cm    ! minimum volume-equivalent radius      [cm]
+rmax   = 1.00_dp * mic2cm   ! maximum volume-equivalent radius      [cm]
 p      = 3.50_dp            ! power-law index of size distribution
 rhod   = 3.30_dp            ! material density                      [g/cm^3]
 nang   = 91                 ! number of angle grids 
@@ -59,7 +59,10 @@ allocate(Z11ave(1:nwl,1:2*nang-1),Z12ave(1:nwl,1:2*nang-1),&
 !--------------------------------------------------------------------------------
 !       Load optical constant
 !--------------------------------------------------------------------------------
-open(50,file="astrosil.nk",status="old")
+open(50,file="astrosil.lnk",status="old")
+do i=1,3
+    read(50,'()')
+enddo
 do i=1,nwl
     read(50,*) wl(i),refre(i),refim(i)
 end do

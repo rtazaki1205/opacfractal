@@ -52,7 +52,10 @@ mass = 4.0_dp * pi * rv ** 3.0_dp * rhod / 3.0_dp
 !--------------------------------------------------------------------------------
 !        Wavelength mesh
 !--------------------------------------------------------------------------------
-open(16,file="astrosil.nk",status="old")
+open(16,file="astrosil.lnk",status="old")
+do iwl=1,3
+    read(16,'()')
+enddo
 do iwl=1,nwl
     read(16,*) wl(iwl),re(iwl),im(iwl)
 enddo
