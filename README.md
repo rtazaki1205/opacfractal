@@ -22,7 +22,7 @@ Because this code includes some formulations by previous authors and can be call
 
 # How to use it? 
 
-There are two examples of calling routines: `call.f90` and `call2.f90`, where the former produces an output file (`out_smat.dat`) containing scattering elements at a single wavelength and the latter produces an output file (`out_opc.dat`) containing wavelength dependent opacities. The user needs to edit `Makefile` to opt one of them. 
+There are three examples of calling routines: `call.f90`, `call2.f90`, and `call3.f90`, where the former produces an output file (`out_smat.dat`) containing scattering elements at a single wavelength and the latter produces an output file (`out_opc.dat`) containing wavelength dependent opacities. The user needs to edit `Makefile` to opt one of them. 
 
 In `call.f90` or `call2.f90`, the user needs specify following input parameters:
 
