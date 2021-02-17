@@ -23,7 +23,7 @@ Because this code includes some formulations by previous authors and can be call
 # How to use it? 
 
 There are three examples of calling routines: `call.f90`, `call2.f90`, and `call3.f90`. The user needs to specify one of them in `Makefile`.
-`call.f90` produces an output file `out_smat.dat`, which contains scattering elements at a single wavelength. `call2.f90` produces `out_opc.dat`, which contains wavelength dependent opacities. `call3.f90` produces `dustkapscatmat.inp`, which contains produces scattering matrix elements and opacities averaged over size distribution, and this file can be used as a input file of [RADMC-3D](https://www.ita.uni-heidelberg.de/~dullemond/software/radmc-3d/). In `call2.f90` and `call3.f90`, refractive index of astronomical silicate is used (Draine 2003).
+`call.f90` produces an output file `out_smat.dat`, which contains scattering elements at a single wavelength. `call2.f90` produces `out_opc.dat`, which contains wavelength dependent opacities. `call3.f90` produces `dustkapscatmat.inp`, which contains both scattering matrix elements and opacities averaged over size distribution, and this file can be used as a input file of [RADMC-3D](https://www.ita.uni-heidelberg.de/~dullemond/software/radmc-3d/). In `call2.f90` and `call3.f90`, refractive index of astronomical silicate is used (Draine 2003).
 
 In the calling routine, the user needs specify following input parameters:
 
