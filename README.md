@@ -92,8 +92,8 @@ I thank the authors for the availability of the subroutines.
 
 A list of subroutines by other authors:  
 
-`lorenz_mie` : BHMIE code written by Bruce T. Draine (with some modifications by R.T.)
-`renorm_mie` : BHMIE code written by Bruce T. Draine (with some modifications by R.T.)
+`lorenz_mie` : BHMIE code written by Bruce T. Draine (with some modifications by R.T.)  
+`renorm_mie` : BHMIE code written by Bruce T. Draine (with some modifications by R.T.)  
 `gamma`      : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
 `chgm`       : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
 `lpmns`      : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
