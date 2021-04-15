@@ -9,7 +9,7 @@ This code has been tested by comparing the results obtained by the T-Matrix Meth
 # Terms of use
 
 `opacfractal` is distributed under the [MITlicense](https://opensource.org/licenses/MIT) and can be used, changed
-and redistributed freely. If you use this package to publish papers, please cite the relevant papers depending on the code options (`iqsca`, `iqcor`, and `iqgeo`). The relevant paper of each code option is as follows.
+and redistributed freely. If you use this package to publish papers, please cite  [Tazaki et al. 2016](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T) and [Tazaki and Tanala 2018](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T) as well as the relevant papers depending on the code options (`iqsca`, `iqcor`, and `iqgeo`): 
  - `iqsca=1` : [Tazaki et al. 2016, ApJ, 823, 70](https://ui.adsabs.harvard.edu/abs/2016ApJ...823...70T)
  - `iqsca=2` : [Botet et al. 1997, ApOpt, 36, 8791](https://ui.adsabs.harvard.edu/abs/1997ApOpt..36.8791B)
  - `iqsca=3` : [Tazaki & Tanaka 2018, ApJ, 860, 79](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T)
