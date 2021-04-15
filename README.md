@@ -48,7 +48,7 @@ In addition, the user also needs to specify following four options:
 - Geometric cross section of fractal aggregates (needed only when `iqsca=3`)  
   `iqgeo=1` : The characteristic cross sections  
   `iqgeo=2` : Empirical formula by [Okuzumi et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O)  
-  `iqgeo=3` : Analytical formula by Tazaki (in prep.) from [geofractal code](https://github.com/rtazaki1205/geofractal)
+  `iqgeo=3` : Analytical formula by Tazaki (2021) from [geofractal code](https://github.com/rtazaki1205/geofractal)
 - standard output  
   `iquiet=0` : show standard output  
   `iquiet=1` : suppress standard output (including warnings)  
