@@ -18,7 +18,7 @@ Because this code includes some formulations by previous authors and can be call
  - `iqcor=2` : [Berry & Percival 1986, AcOpt, 33, 577](https://ui.adsabs.harvard.edu/abs/1986AcOpt..33..577B)
  - `iqcor=3` : [Botet et al. 1995, JPhA, 28, 297](https://ui.adsabs.harvard.edu/abs/1995JPhA...28..297B)
  - `iqgeo=2` : [Okuzumi et al. 2009, ApJ, 707, 1247](https://ui.adsabs.harvard.edu/abs/2009ApJ...707.1247O) 
- - `iqgeo=3` : [Tazaki (submitted to MNRAS)](https://github.com/rtazaki1205/geofractal)
+ - `iqgeo=3` : [Tazaki 2021, MNRAS, in press.](https://arxiv.org/abs/2104.06804)
 
 # How to use it? 
 
