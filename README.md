@@ -22,7 +22,7 @@ and redistributed freely. If you use this package to publish papers, please cite
 # How to use it? 
 
 There are three examples of calling routines: `call.f90`, `call2.f90`, and `call3.f90`. The user needs to specify one of them in `Makefile`.
-`call.f90` produces an output file `out_smat.dat`, which contains scattering elements at a single wavelength. `call2.f90` produces `out_opc.dat`, which contains wavelength dependent opacities. `call3.f90` produces `dustkapscatmat.inp`, which contains both scattering matrix elements and opacities averaged over size distribution, and this file can be used as a input file of [RADMC-3D](https://www.ita.uni-heidelberg.de/~dullemond/software/radmc-3d/). In `call2.f90` and `call3.f90`, refractive index of astronomical silicate is used (Draine 2003).
+`call.f90` produces an output file `out_smat.dat`, which contains scattering elements at a single wavelength. `call2.f90` produces `out_opc.dat`, which contains wavelength dependent opacities. `call3.f90` produces `dustkapscatmat.inp`, which contains both scattering matrix elements and opacities averaged over size distribution, and this file can be used as an input file of [RADMC-3D](https://www.ita.uni-heidelberg.de/~dullemond/software/radmc-3d/). In `call2.f90` and `call3.f90`, refractive index of astronomical silicate is used (Draine 2003).
 
 In the calling routine, the user needs specify following input parameters:
 
@@ -63,11 +63,11 @@ This will create an executable file `fracsca.x`. Then, perform
 ```
 ./fracsca.x
 ```
-As a result, the output file `out_smat.dat` or `out_opc.dat` is created. 
+As a result, the output file `out_smat.dat`, `out_opc.dat`, or `dustkapscatmat.inp` is created. 
 
 # Limitation of the code 
 
-`opacfractal` is a code based on an approximate technique to solve light scattering, and therefore, it is not applicable for all possible parameters. Beyond the limitation of the code, I suggest the users to use more rigorous numerical approach, such as [MSTM](https://www.eng.auburn.edu/~dmckwski/scatcodes/) and [DDSCAT](http://ddscat.wikidot.com/).
+`opacfractal` is a code based on an approximate technique to solve light scattering, and therefore, it is not applicable for all possible parameters. Beyond the limitation of the code, I suggest the users to use a rigorous numerical approach, such as [MSTM](https://www.eng.auburn.edu/~dmckwski/scatcodes/) and [DDSCAT](http://ddscat.wikidot.com/).
 
 I summarize some limitations of `opacfractal` for each light scattering solver (`iqsca`). The limitation can be simply judged by the phase shift induced by an aggregate (Equation 9 in Tazaki & Tanaka 2018; see also Section 3.2 in this paper).
 
@@ -81,9 +81,9 @@ I summarize some limitations of `opacfractal` for each light scattering solver (
 - `iqsca=3`  
   The extinction cross section would be calculated without limitation. Scattering and absorption cross sections could be calculated for the phase shift > 1, however too large phase shift may cause some problem. The asymmetry parameter and the sattering matrix elements would be reliable for the phase shift <~ 1.  
 
-The code also neglects the enhancement of absorption opacity due to the presence of adjacent monomers in an aggregate (see e.g., Section 5 in [Tazaki & Tanaka 2018](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T)). Therefore, the code underestimates the absorptin opacity in the Rayleigh domain particularly when monomers have high refractive index, such as amorphous carbon.
+The code also neglects the enhancement of absorption opacity due to the presence of adjacent monomers in an aggregate (see e.g., Section 5 in [Tazaki & Tanaka 2018](https://ui.adsabs.harvard.edu/abs/2018ApJ...860...79T)). Therefore, the code underestimates the absorptin opacity in the Rayleigh domain particularly when monomers have high refractive index, such as amorphous carbon or metals.
 
-For safety, the code always returns a value of the phase shift, and therefore, the user can check whether a set of inputted parameters is within the limitation or not. The code also produces a warning when the phase shift is above unity, although this warning is suppressed when `iquiet = 1`.
+For safety, the code always returns a value of the phase shift, and therefore, the user can check whether a set of input parameters is within the limitation or not. The code also produces a warning when the phase shift is above unity, although this warning is suppressed when `iquiet = 1`.
 
 # Acknowledgement 
 
@@ -92,8 +92,8 @@ I thank the authors for the availability of the subroutines.
 
 A list of subroutines by other authors:  
 
-`lorenz_mie` : Modified version of BHMIE code written by Bruce T. Draine  
-`renorm_mie` : Modified version of BHMIE code written by Bruce T. Draine  
+`lorenz_mie` : BHMIE code written by Bruce T. Draine (with some modifications by R.T.)
+`renorm_mie` : BHMIE code written by Bruce T. Draine (with some modifications by R.T.)
 `gamma`      : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
 `chgm`       : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
 `lpmns`      : Zhang, S. and Jin, J. (1996) "Computation of Special Functions.  
